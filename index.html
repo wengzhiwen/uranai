@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>星詠みの相性占い ─ ふたりの運命</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Klee+One:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="cosmos-bg">
+    <div class="nebula nebula-a"></div>
+    <div class="nebula nebula-b"></div>
+    <div class="nebula nebula-c"></div>
+    <canvas id="ambient-stars"></canvas>
+  </div>
+
+  <main class="stage" id="stage">
+    <header class="stage-head">
+      <div class="ornament">✦ ⋆ ˙ ⊹ ˙ ⋆ ✦</div>
+      <h1 class="title">星詠みの相性占い</h1>
+      <p class="subtitle">― ふたりの星が織りなす運命を、そっと紐解いて ―</p>
+    </header>
+
+    <section class="panels">
+      <!-- 左：ひとりめ -->
+      <div class="panel panel-left">
+        <div class="panel-label">ひとりめ</div>
+        <div class="zodiac-display" id="zodiac-left" data-side="left"></div>
+        <div class="zodiac-name" id="zodiac-name-left">星座をえらんでね</div>
+        <input class="name-input" id="name-left" type="text" maxlength="12" placeholder="お名前" autocomplete="off" />
+        <div class="zodiac-grid" id="grid-left" data-side="left"></div>
+      </div>
+
+      <!-- 中央：占うボタン -->
+      <div class="center-pillar">
+        <div class="link-thread"></div>
+        <button class="divine-btn" id="divine-btn">
+          <span class="btn-glow"></span>
+          <span class="btn-text">占う</span>
+          <span class="btn-sub">ふたりの相性を視る</span>
+        </button>
+        <div class="link-thread"></div>
+      </div>
+
+      <!-- 右：ふたりめ -->
+      <div class="panel panel-right">
+        <div class="panel-label">ふたりめ</div>
+        <div class="zodiac-display" id="zodiac-right" data-side="right"></div>
+        <div class="zodiac-name" id="zodiac-name-right">星座をえらんでね</div>
+        <input class="name-input" id="name-right" type="text" maxlength="12" placeholder="お相手のお名前" autocomplete="off" />
+        <div class="zodiac-grid" id="grid-right" data-side="right"></div>
+      </div>
+    </section>
+
+    <footer class="stage-foot">
+      <span id="hint-text">ふたりの星座とお名前を入れて、星に問いかけましょう</span>
+    </footer>
+  </main>
+
+  <!-- ============ 占いの儀式（障眼法アニメーション） ============ -->
+  <div class="ritual" id="ritual" aria-hidden="true">
+    <canvas id="ritual-canvas"></canvas>
+
+    <!-- 回転する黄道十二宮の輪 -->
+    <div class="zodiac-wheel" id="zodiac-wheel">
+      <svg viewBox="0 0 600 600" class="wheel-svg">
+        <circle cx="300" cy="300" r="270" class="wheel-ring outer" />
+        <circle cx="300" cy="300" r="232" class="wheel-ring inner" />
+        <circle cx="300" cy="300" r="150" class="wheel-ring core" />
+        <g id="wheel-ticks"></g>
+        <g id="wheel-glyphs"></g>
+      </svg>
+    </div>
+
+    <!-- 中央で結ばれるふたつの星座 -->
+    <div class="orbit-pair">
+      <div class="orbit-body orbit-1" id="orbit-1"></div>
+      <div class="orbit-body orbit-2" id="orbit-2"></div>
+      <div class="fusion-core" id="fusion-core"></div>
+    </div>
+
+    <!-- 進行中のことばと進捗 -->
+    <div class="ritual-caption" id="ritual-caption">星々が囁きはじめています…</div>
+    <div class="ritual-progress"><span id="ritual-progress-bar"></span></div>
+  </div>
+
+  <!-- ============ 結果 ============ -->
+  <div class="result" id="result" aria-hidden="true">
+    <div class="result-inner">
+      <div class="result-aura"></div>
+      <div class="result-names" id="result-names"></div>
+      <div class="result-ring">
+        <svg viewBox="0 0 220 220" class="score-ring">
+          <circle cx="110" cy="110" r="96" class="ring-track" />
+          <circle cx="110" cy="110" r="96" class="ring-fill" id="ring-fill" />
+        </svg>
+        <div class="score-center">
+          <div class="score-num"><span id="score-value">0</span><i>%</i></div>
+          <div class="score-label" id="score-label">相性</div>
+        </div>
+      </div>
+      <div class="result-verdict" id="result-verdict"></div>
+      <div class="result-message" id="result-message"></div>
+      <div class="result-aspects" id="result-aspects"></div>
+      <button class="again-btn" id="again-btn">もう一度占う</button>
+    </div>
+  </div>
+
+  <script src="zodiac.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
