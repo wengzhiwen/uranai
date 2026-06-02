@@ -248,58 +248,109 @@ function hashString(str) {
   return (h >>> 0);
 }
 
-// 四元素の相性（0〜1）
-const ELEMENT_AFFINITY = {
-  fire:  { fire: 0.85, air: 0.92, earth: 0.5,  water: 0.45 },
-  earth: { earth: 0.85, water: 0.92, air: 0.55, fire: 0.5 },
-  air:   { air: 0.85, fire: 0.92, water: 0.6,  earth: 0.55 },
-  water: { water: 0.85, earth: 0.92, air: 0.6, fire: 0.45 },
-};
-
-function computeCompatibility(nameL, keyL, nameR, keyR) {
-  const zL = findZodiac(keyL), zR = findZodiac(keyR);
-  // 順不同で同じ結果になるよう、名前＋星座の組を整列して結合
-  const a = nameL + "@" + keyL, b = nameR + "@" + keyR;
-  const seed = [a, b].sort().join("|");
-  const h = hashString(seed);
-
-  const nameNoise = (h % 1000) / 1000;          // 0〜1
-  const affinity = ELEMENT_AFFINITY[zL.element][zR.element];
-  const sameSign = keyL === keyR ? 0.06 : 0;
-
-  // 元素相性7割＋名前ゆらぎ3割
-  let raw = affinity * 0.7 + nameNoise * 0.3 + sameSign;
-  raw = Math.max(0, Math.min(1, raw));
-  const score = Math.round(44 + raw * 55); // 44〜99
-
-  return {
-    mode: "zodiac",
-    score, nameL, nameR, zL, zR,
-    affinity,
-    verdict: pickVerdict(score),
-    message: pickMessage(score, zL, zR, h),
-    aspect: aspectLabel(zL, zR),
-  };
-}
-
-/* 名前だけの相性（ことだまの響き）。星座を使わず、
-   ふたつの名前のハッシュから安定したスコアを導く。 */
-function computeByName(nameL, nameR) {
-  // 占う「いま」の日付＋時刻（時単位・分は含めない）を種に混ぜる。
-  // 同じ日付・同じ時・同じ二人なら結果は等冪。日付か時が変われば結果も変わる。
+/* 名前の等冪計算の素（ことだまの響き）。
+   占う「いま」の日付＋時刻（時単位・分は含めない）を種に混ぜるので、
+   同じ日付・同じ時・同じ二人なら結果は等冪。日付か時が変われば変わる。
+   星座モードでも“基礎”としてこの値を使う。 */
+function nameSeedParts(nameL, nameR) {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}`;
   const seed = [nameL, nameR].sort().join("|") + "@" + stamp;
   const h = hashString(seed);
   const h2 = hashString(seed + "✦");
+  const raw = (h % 1000) / 1000 * 0.5 + (h2 % 1000) / 1000 * 0.5; // 0〜1
+  return { raw, h, now };
+}
 
-  const noise = (h % 1000) / 1000;            // 0〜1
-  const resonance = (h2 % 1000) / 1000;       // 0〜1（ことだまの共鳴）
-  const sameName = nameL === nameR ? 0.05 : 0;
+/* ---- 黄道（太陽の位置）まわりの計算 ---- */
+// 指定日時の太陽の黄経（0〜360°、春分点=牡羊座0°）。低精度だが占い用途には十分。
+function sunEclipticLongitude(date) {
+  const JD = date.getTime() / 86400000 + 2440587.5; // ユリウス日
+  const n = JD - 2451545.0;                          // J2000.0 からの経過日数
+  const L = (280.460 + 0.9856474 * n);               // 平均黄経
+  const g = (357.528 + 0.9856003 * n) * Math.PI / 180; // 平均近点角
+  let lon = L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g);
+  return ((lon % 360) + 360) % 360;
+}
+// 星座の中心黄経（牡羊=15°, 牡牛=45° …）
+function signCenter(key) { return ZODIAC.findIndex((z) => z.key === key) * 30 + 15; }
+// 2つの黄経の最小角差（0〜180°）
+function angDist(a, b) { const d = (((a - b) % 360) + 360) % 360; return d > 180 ? 360 - d : d; }
 
-  let raw = noise * 0.5 + resonance * 0.5 + sameName;
+// アスペクト（角度関係）の調和度を 0〜1 で返す。プトレマイオスの主要アスペクト。
+function aspectHarmony(deg) {
+  const aspects = [
+    { a: 0,   v: 0.88, orb: 10 }, // 合
+    { a: 60,  v: 0.82, orb: 8 },  // セクスタイル（吉）
+    { a: 90,  v: 0.40, orb: 8 },  // スクエア（凶）
+    { a: 120, v: 0.98, orb: 10 }, // トライン（大吉）
+    { a: 150, v: 0.38, orb: 6 },  // インコンジャクト（凶）
+    { a: 180, v: 0.62, orb: 10 }, // オポジション
+  ];
+  let acc = 0, wsum = 0;
+  for (const asp of aspects) {
+    const w = Math.max(0, 1 - Math.abs(deg - asp.a) / asp.orb); // オーブ内で線形に効く
+    acc += asp.v * w; wsum += w;
+  }
+  return wsum > 0 ? acc / wsum : 0.5; // どのアスペクトのオーブ外なら中立
+}
+
+function aspectName(sep) {
+  const s = Math.round(sep / 30) * 30;
+  return ({
+    0:   "同じ星のもとに（合）",
+    30:  "ささやかな縁",
+    60:  "心地よい調和（セクスタイル）",
+    90:  "刺激し合う関係（スクエア）",
+    120: "響き合う運命（トライン）",
+    150: "学び合う関係",
+    180: "惹かれ合う対極（オポジション）",
+  })[s] || "星の交わり";
+}
+
+// 太陽の現在位置を踏まえた、ふたつの星座の相性（0〜1）。
+function zodiacAffinityBySun(keyL, keyR, sunLon) {
+  const cL = signCenter(keyL), cR = signCenter(keyR);
+  const sep = angDist(cL, cR);
+  const baseAspect = aspectHarmony(sep);                       // 二人の星座どうしの角度関係
+  const sunFavor = (aspectHarmony(angDist(sunLon, cL)) +
+                    aspectHarmony(angDist(sunLon, cR))) / 2;   // 今の太陽が両者をどう照らすか
+  const score = baseAspect * 0.65 + sunFavor * 0.35;
+  const sunSign = ZODIAC[Math.floor((((sunLon % 360) + 360) % 360) / 30)];
+  return { score, aspectName: aspectName(sep), sunSign };
+}
+
+/* 星座＋名前の相性。
+   姓名の等冪計算を基礎に、太陽の現在位置で測った星座相性を叠加する。 */
+function computeCompatibility(nameL, keyL, nameR, keyR) {
+  const zL = findZodiac(keyL), zR = findZodiac(keyR);
+  const { raw: nameBase, h, now } = nameSeedParts(nameL, nameR);
+
+  const sunLon = sunEclipticLongitude(now);
+  const z = zodiacAffinityBySun(keyL, keyR, sunLon);
+  const sameSign = keyL === keyR ? 0.04 : 0;
+
+  // 姓名（基礎）5割＋星座×太陽位置の相性5割
+  let raw = nameBase * 0.5 + z.score * 0.5 + sameSign;
   raw = Math.max(0, Math.min(1, raw));
+  const score = Math.round(44 + raw * 55); // 44〜99
+
+  return {
+    mode: "zodiac",
+    score, nameL, nameR, zL, zR,
+    affinity: z.score, sunSign: z.sunSign,
+    verdict: pickVerdict(score),
+    message: pickMessage(score, zL, zR, h),
+    aspect: z.aspectName,
+  };
+}
+
+/* 名前だけの相性（ことだまの響き）。星座を使わず姓名の等冪計算のみ。 */
+function computeByName(nameL, nameR) {
+  const { raw: base, h } = nameSeedParts(nameL, nameR);
+  const sameName = nameL === nameR ? 0.05 : 0;
+  const raw = Math.max(0, Math.min(1, base + sameName));
   const score = Math.round(44 + raw * 55);    // 44〜99
 
   return {
@@ -325,15 +376,6 @@ function pickVerdict(s) {
   if (s >= 72) return "心かよう ─ 良い相性";
   if (s >= 60) return "歩み寄りで深まる相性";
   return "ゆっくり育てていく相性";
-}
-
-function aspectLabel(zL, zR) {
-  const eL = ELEMENT_META[zL.element].jp, eR = ELEMENT_META[zR.element].jp;
-  if (zL.element === zR.element) return `${eL}どうしの共鳴`;
-  const pair = [zL.element, zR.element];
-  const harmonic = (pair.includes("fire") && pair.includes("air")) ||
-                   (pair.includes("water") && pair.includes("earth"));
-  return harmonic ? `${eL}と${eR}の調和` : `${eL}と${eR}の引き合い`;
 }
 
 const MESSAGES = {
@@ -375,7 +417,7 @@ function showResult(o) {
     const emL = ELEMENT_META[o.zL.element], emR = ELEMENT_META[o.zR.element];
     document.getElementById("result-aspects").innerHTML = `
       <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}の星</div></div>
-      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">&nbsp;</div></div>
+      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">いまの太陽は${o.sunSign.glyph}${o.sunSign.jp}</div></div>
       <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}の星</div></div>`;
   } else {
     document.getElementById("result-aspects").innerHTML = `
