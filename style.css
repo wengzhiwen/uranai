@@ -1,5 +1,5 @@
 /* ============================================================
-   星詠みの相性占い  ─  スタイル
+   絆占い  ─  スタイル
    女性的でロマンティックな占いの世界観
    配色：深い夜空の藍 × 藤・薄紅 × 金
    ============================================================ */
@@ -105,9 +105,16 @@ body {
 .stage-head { text-align: center; }
 .ornament { color: var(--gold); letter-spacing: 0.4em; font-size: clamp(10px, 1.6cqmin, 14px);
   opacity: 0.85; margin-bottom: 0.3em; }
+.brand-mark {
+  font-family: var(--serif-old);
+  font-size: clamp(9px, 1.35cqmin, 12px);
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  margin-bottom: 0.25em;
+}
 .title {
   font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(22px, 4.6cqmin, 44px);
+  font-size: clamp(28px, 5.4cqmin, 52px);
   letter-spacing: 0.16em; color: var(--gold-soft);
   text-shadow: 0 0 18px rgba(232,201,125,0.45), 0 2px 0 rgba(0,0,0,0.3);
 }
@@ -171,11 +178,9 @@ body {
   min-height: 0;
 }
 .panel-label {
-  font-family: var(--latin); letter-spacing: 0.28em; font-size: clamp(10px,1.5cqmin,13px);
-  color: var(--gold); text-transform: uppercase;
+  font-family: var(--serif-old); letter-spacing: 0.18em; font-size: clamp(10px,1.5cqmin,13px);
+  color: var(--gold);
 }
-.panel-left  .panel-label::after { content: " ・ ひとりめ"; font-family: var(--serif); color: var(--ink-soft); letter-spacing: .1em; }
-.panel-right .panel-label::after { content: " ・ ふたりめ"; font-family: var(--serif); color: var(--ink-soft); letter-spacing: .1em; }
 .panel-left .panel-label, .panel-right .panel-label { font-size: clamp(9px,1.3cqmin,12px); }
 
 /* 選択中の星座原画 */
@@ -279,7 +284,7 @@ body {
   animation: spin 5s linear infinite; opacity: 0.7; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .divine-btn .btn-text { position: relative; font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(18px, 3.4cqmin, 30px); letter-spacing: 0.1em;
+  font-size: clamp(15px, 2.7cqmin, 24px); letter-spacing: 0.04em;
   text-shadow: 0 0 14px rgba(232,201,125,0.6); }
 .divine-btn .btn-sub { position: relative; font-size: clamp(7px,1.1cqmin,9px);
   letter-spacing: 0.14em; color: var(--ink-soft); }
@@ -465,6 +470,24 @@ body {
      cqmin はコンテナ不在時ビューポート基準にフォールバックする */
   .stage { width: 96vw; height: auto; aspect-ratio: auto; min-height: 96vh;
     container-type: normal; }
+  .panels {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(170px, 1fr) auto minmax(170px, 1fr);
+  }
+  .panel { min-height: 0; }
+  .center-pillar {
+    flex-direction: row;
+    min-height: 88px;
+  }
+  .link-thread {
+    width: auto;
+    height: 1px;
+    min-width: 24px;
+    min-height: 1px;
+  }
+  .center-pillar .link-thread:first-child { background: linear-gradient(90deg, transparent, var(--gold)); }
+  .center-pillar .link-thread:last-child { background: linear-gradient(90deg, var(--gold), transparent); }
+  .name-input { max-width: min(270px, 86vw); }
   /* 縦長では星座グリッドを4列に戻す */
   .zodiac-grid { grid-template-columns: repeat(4, 1fr); }
 }

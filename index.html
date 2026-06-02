@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>星詠みの相性占い ─ ふたりの運命</title>
+<title>絆占い | キズナテレポート</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Klee+One:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css?v=4998cfaf15" />
+<link rel="stylesheet" href="style.css?v=13820b7b07" />
 </head>
 <body>
   <div class="cosmos-bg">
@@ -20,11 +20,12 @@
   <main class="stage" id="stage">
     <header class="stage-head">
       <div class="ornament">✦ ⋆ ˙ ⊹ ˙ ⋆ ✦</div>
-      <h1 class="title">星詠みの相性占い</h1>
-      <p class="subtitle">― ふたりの運命を、そっと紐解いて ―</p>
+      <div class="brand-mark">キズナテレポート presents</div>
+      <h1 class="title">絆占い</h1>
+      <p class="subtitle">― おふたりのご縁を、そっと読み解きます ―</p>
       <div class="mode-switch" id="mode-switch" role="tablist">
-        <button class="mode-btn active" data-mode="name" role="tab">お名前だけで占う</button>
-        <button class="mode-btn" data-mode="zodiac" role="tab">お名前＋星座で占う</button>
+        <button class="mode-btn active" data-mode="name" role="tab">名前で占う</button>
+        <button class="mode-btn" data-mode="zodiac" role="tab">星座で占う</button>
         <span class="mode-indicator" id="mode-indicator"></span>
       </div>
     </header>
@@ -32,10 +33,10 @@
     <section class="panels">
       <!-- 左：ひとりめ -->
       <div class="panel panel-left">
-        <div class="panel-label">ひとりめ</div>
+        <div class="panel-label">あなた</div>
         <div class="zodiac-display" id="zodiac-left" data-side="left"></div>
-        <div class="zodiac-name" id="zodiac-name-left">星座をえらんでね</div>
-        <input class="name-input" id="name-left" type="text" maxlength="12" placeholder="お名前" autocomplete="off" />
+        <div class="zodiac-name" id="zodiac-name-left">星座を選択してください</div>
+        <input class="name-input" id="name-left" type="text" maxlength="12" placeholder="あなたのお名前" autocomplete="off" />
         <div class="zodiac-grid" id="grid-left" data-side="left"></div>
       </div>
 
@@ -44,24 +45,24 @@
         <div class="link-thread"></div>
         <button class="divine-btn" id="divine-btn">
           <span class="btn-glow"></span>
-          <span class="btn-text">占う</span>
-          <span class="btn-sub">ふたりの相性を視る</span>
+          <span class="btn-text">鑑定する</span>
+          <span class="btn-sub">おふたりの相性</span>
         </button>
         <div class="link-thread"></div>
       </div>
 
       <!-- 右：ふたりめ -->
       <div class="panel panel-right">
-        <div class="panel-label">ふたりめ</div>
+        <div class="panel-label">お相手</div>
         <div class="zodiac-display" id="zodiac-right" data-side="right"></div>
-        <div class="zodiac-name" id="zodiac-name-right">星座をえらんでね</div>
+        <div class="zodiac-name" id="zodiac-name-right">星座を選択してください</div>
         <input class="name-input" id="name-right" type="text" maxlength="12" placeholder="お相手のお名前" autocomplete="off" />
         <div class="zodiac-grid" id="grid-right" data-side="right"></div>
       </div>
     </section>
 
     <footer class="stage-foot">
-      <span id="hint-text">ふたりの星座とお名前を入れて、星に問いかけましょう</span>
+      <span id="hint-text">おふたりの星座とお名前を入力してください</span>
     </footer>
   </main>
 
@@ -88,7 +89,7 @@
     </div>
 
     <!-- 進行中のことばと進捗 -->
-    <div class="ritual-caption" id="ritual-caption">星々が囁きはじめています…</div>
+    <div class="ritual-caption" id="ritual-caption">星々がささやきはじめています…</div>
     <div class="ritual-progress"><span id="ritual-progress-bar"></span></div>
   </div>
 
@@ -110,11 +111,11 @@
       <div class="result-verdict" id="result-verdict"></div>
       <div class="result-message" id="result-message"></div>
       <div class="result-aspects" id="result-aspects"></div>
-      <button class="again-btn" id="again-btn">もう一度占う</button>
+      <button class="again-btn" id="again-btn">もう一度鑑定する</button>
     </div>
   </div>
 
   <script src="zodiac.js?v=46264ee84d"></script>
-  <script src="script.js?v=2dd1e2a66c"></script>
+  <script src="script.js?v=dcdf418e13"></script>
 </body>
 </html>

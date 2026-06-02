@@ -17,11 +17,10 @@ changed=0
 for f in "${ASSETS[@]}"; do
   [ -f "$f" ] || { echo "skip: $f 不存在"; continue; }
   hash="$(sha1sum "$f" | cut -c1-10)"
-  # 转义文件名里的点，避免被当作正则通配
-  fre="$(printf '%s' "$f" | sed 's/\./\\./g')"
   # 把 href/src 里的该资源（无论是否已带 ?v=）统一替换为新哈希
   before="$(cat "$HTML")"
-  sed -i -E "s#((href|src)=\"$fre)(\?v=[^\"]*)?\"#\1?v=$hash\"#g" "$HTML"
+  perl -0pi -e 'BEGIN { ($file, $hash) = @ARGV; @ARGV = @ARGV[2..$#ARGV]; }
+    s#((?:href|src)="\Q$file\E)(?:\?v=[^"]*)?"#$1 . "?v=$hash\""#ge' "$f" "$hash" "$HTML"
   if [ "$before" != "$(cat "$HTML")" ]; then
     echo "updated: $f -> v=$hash"
     changed=1

@@ -1,5 +1,5 @@
 /* ============================================================
-   星詠みの相性占い  ─  メインロジック
+   絆占い  ─  メインロジック
    ・星座えらび／名前入力
    ・占いの儀式（5〜8秒の障眼法アニメーション）
    ・相性スコアは入力から決定論的に算出（同じ入力なら同じ結果）
@@ -66,7 +66,7 @@ function updateSide(side) {
   if (!state[side]) {
     disp.classList.add("empty");
     disp.innerHTML = "";
-    nameEl.textContent = "星座をえらんでね";
+    nameEl.textContent = "星座を選択してください";
     return;
   }
   const z = findZodiac(state[side]);
@@ -74,7 +74,7 @@ function updateSide(side) {
   disp.innerHTML = buildConstellationSVG(z);
   disp.classList.remove("pop"); void disp.offsetWidth; disp.classList.add("pop");
   const em = ELEMENT_META[z.element];
-  nameEl.innerHTML = `${z.jp}<span class="roma">${z.roma} ・ ${em.jp}の星</span>`;
+  nameEl.innerHTML = `${z.jp}<span class="roma">${z.roma} ・ ${em.jp}のエレメント</span>`;
 }
 
 /* ---------- 黄道十二宮の輪を生成 ---------- */
@@ -130,9 +130,9 @@ function refreshReady() {
   btn.classList.toggle("ready", !!ready);
   const hint = document.getElementById("hint-text");
   const need = state.mode === "zodiac"
-    ? "ふたりの星座とお名前を入れて、星に問いかけましょう"
-    : "ふたりのお名前を入れて、星に問いかけましょう";
-  hint.textContent = ready ? "準備がととのいました。星に問いかけましょう ✦" : need;
+    ? "おふたりの星座とお名前を入力してください"
+    : "おふたりのお名前を入力してください";
+  hint.textContent = ready ? "鑑定の準備が整いました。結果を読み解きましょう ✦" : need;
 }
 
 /* ============================================================
@@ -143,8 +143,8 @@ let ritualRAF = null;
 function startDivination() {
   if (!(zodiacReady() && namesFilled())) {
     flashHint(state.mode === "zodiac"
-      ? "ふたりの星座とお名前を入れてくださいね"
-      : "ふたりのお名前を入れてくださいね");
+      ? "おふたりの星座とお名前を入力してください"
+      : "おふたりのお名前を入力してください");
     return;
   }
   const nameL = document.getElementById("name-left").value.trim();
@@ -183,12 +183,12 @@ function runRitualSequence(outcome) {
   const t0 = performance.now();
 
   const phases = [
-    { at: 0.00, cls: "phase-enter", text: "星々が囁きはじめています…" },
-    { at: 0.14, cls: "phase-wheel", text: "黄道十二宮が、ゆっくりと目を覚ましました" },
-    { at: 0.34, cls: "phase-wheel", text: "ふたつの星が、たがいに惹かれ合っています…" },
-    { at: 0.52, cls: "phase-bind",  text: "ふたりの運命の糸を、そっと結んでいます…" },
-    { at: 0.74, cls: "phase-read",  text: "星詠みが、ふたりの相性を読み解いています…" },
-    { at: 0.90, cls: "phase-read",  text: "まもなく、星のこたえが降りてきます ✦" },
+    { at: 0.00, cls: "phase-enter", text: "星々がささやきはじめています…" },
+    { at: 0.14, cls: "phase-wheel", text: "黄道十二宮の導きをたどっています" },
+    { at: 0.34, cls: "phase-wheel", text: "おふたりの星が、静かに引き合っています…" },
+    { at: 0.52, cls: "phase-bind",  text: "運命の糸を、そっと結び合わせています…" },
+    { at: 0.74, cls: "phase-read",  text: "絆占いが、おふたりの相性を読み解いています…" },
+    { at: 0.90, cls: "phase-read",  text: "まもなく、鑑定結果をお届けします ✦" },
   ];
   let phaseIdx = -1;
 
@@ -316,14 +316,14 @@ function aspectHarmony(deg) {
 function aspectName(sep) {
   const s = Math.round(sep / 30) * 30;
   return ({
-    0:   "同じ星のもとに（合）",
-    30:  "ささやかな縁",
-    60:  "心地よい調和（セクスタイル）",
-    90:  "刺激し合う関係（スクエア）",
-    120: "響き合う運命（トライン）",
-    150: "学び合う関係",
-    180: "惹かれ合う対極（オポジション）",
-  })[s] || "星の交わり";
+    0:   "重なり合うご縁（コンジャンクション）",
+    30:  "ゆるやかに近づくご縁（セミセクスタイル）",
+    60:  "心地よく支え合う関係（セクスタイル）",
+    90:  "刺激し合い成長できる関係（スクエア）",
+    120: "自然に響き合う関係（トライン）",
+    150: "歩み寄りが鍵になる関係（インコンジャンクト）",
+    180: "向き合うほど惹かれる関係（オポジション）",
+  })[s] || "星が示すご縁";
 }
 
 // 太陽の現在位置を踏まえた、ふたつの星座の相性（0〜1）。
@@ -382,70 +382,73 @@ function computeByName(nameL, nameR) {
 }
 
 function nameResonanceLabel(score, miracle) {
-  if (miracle === "high") return "ことだまが、宇宙の果てまで轟き渡る";
-  if (miracle === "low")  return "ことだまが、星詠みさえ読めない波動を放っている";
-  if (score >= 82) return "ことだまが、ぴたりと重なり合う";
-  if (score >= 70) return "ふたつの名が、やさしく響き合う";
-  if (score >= 57) return "名の調べが、心地よく溶け合う";
-  if (score >= 42) return "ふたつの音が、寄り添いはじめる";
-  return "名の響きが、少しずつ近づいてゆく";
+  if (miracle === "high") return "言霊が、必殺技のように響き合っています";
+  if (miracle === "low")  return "言霊が、まだ次回予告を待っているようです";
+  if (score >= 82) return "言霊が、ぴたりとコンビ技になっています";
+  if (score >= 70) return "ふたつの名前が、やさしく響き合っています";
+  if (score >= 57) return "名前の響きが、心地よく調和しています";
+  if (score >= 42) return "ふたつの響きが、少しずつ寄り添っています";
+  return "名前の響きが、ゆっくり距離を縮めています";
 }
 
 const MIRACLE_HIGH_VERDICTS = [
-  "千年に一度の奇跡 ─ 星が震えるほどの相性",
-  "伝説の縁 ─ 星詠みが生涯で見た最高の相性",
-  "天地が認めた絆 ─ 宇宙規模の運命",
-  "星々が涙する ─ これは奇跡としか言いようがない",
-  "全星座が息を呑んで祝福する ─ 完璧なる相性",
+  "奇跡のご縁 ─ 主人公級の相性",
+  "運命的な結びつき ─ これはもう最終回手前",
+  "星が祝福するご縁 ─ 友情・努力・相性",
+  "かけがえのない絆 ─ コンビ技が決まる相性",
+  "心が通い合うご縁 ─ スーパー級の相性",
 ];
 
 const MIRACLE_LOW_VERDICTS = [
-  "宇宙が首をかしげた ─ 前代未聞の謎めいた縁",
-  "星詠みも驚愕 ─ 星図に存在しない相性",
-  "星が困惑している ─ 不可解な引力の予感",
-  "天の気まぐれ ─ この縁、波乱に満ちている",
-  "宇宙の試練 ─ それでも惹かれ合うふたりなら",
+  "まだ形の見えないご縁 ─ 第1話はここから",
+  "少し不思議な結びつき ─ 伏線回収はこれから",
+  "意外性のあるご縁 ─ 名探偵も二度見する相性",
+  "慎重に育てたい関係 ─ 作戦会議が効く相性",
+  "距離の縮め方が大切なご縁 ─ 次回に期待の相性",
 ];
 
 function pickVerdict(score, miracle, h) {
   if (miracle === "high") return MIRACLE_HIGH_VERDICTS[h % MIRACLE_HIGH_VERDICTS.length];
   if (miracle === "low")  return MIRACLE_LOW_VERDICTS[h % MIRACLE_LOW_VERDICTS.length];
-  if (score >= 82) return "運命の赤い糸 ─ 最高の相性";
-  if (score >= 70) return "星も微笑む ─ とても良い相性";
-  if (score >= 57) return "心かよう ─ 良い相性";
-  if (score >= 42) return "歩み寄りで深まる相性";
-  return "ゆっくり育てていく相性";
+  if (score >= 82) return "運命を感じるご縁 ─ 主題歌が流れる相性";
+  if (score >= 70) return "自然に惹かれ合う ─ いいチームになれる相性";
+  if (score >= 57) return "心が通い合う ─ じわじわ良い相性";
+  if (score >= 42) return "歩み寄るほど深まる相性";
+  return "ゆっくり育てたい、まだ序盤の相性";
 }
 
 const MESSAGES = {
   miracle_high: [
-    "星詠みが長年の経験でほとんど目にしたことのない、奇跡の相性です。ふたりの魂は、この宇宙が始まる前から引き合うよう定められていたのかもしれません。大切に、どうか大切に。",
-    "この出会いに、天の川のすべての星が証人となっています。ふたりが同じ時代に生まれたこと自体が、宇宙からの贈り物です。",
-    "星詠みは、この数字を見て静かに息を呑みました。言葉では追いつかない尊さがあります──ふたりの縁は、もはや星の領域を超えています。",
-    "黄道十二宮が一瞬、回転を止めました。星々もこの相性の前では、ただ静かに祝福するほかないのです。",
-    "これほどの数字は、記録にもありません。ふたりが同じ場所で息をしているという事実だけで、もう奇跡です。",
+    "めったに見られないほど強い結びつきを感じる相性です。お互いの存在が安心感となり、関係を大切に育てるほど絆はさらに深まっていくでしょう。",
+    "出会うべくして出会ったと思えるご縁です。言葉にしなくても気持ちが伝わりやすく、ふたりで過ごす時間が心の支えになっていきます。",
+    "星の流れから見ると、おふたりは互いの魅力を自然に引き出し合える関係です。まるで冒険の一味に迎えたくなるような、頼もしさがあります。",
+    "おふたりの間には、偶然とは思えない引力があります。向き合うほど、隠しコマンドを見つけたみたいに関係が強くなっていきそうです。",
+    "この相性は、強いご縁とタイミングの良さを示しています。ここぞという場面では、まるで必殺技のカットインのように息が合うでしょう。",
   ],
   miracle_low: [
-    "星詠みも首をかしげる、前代未聞の相性です。でも──だからこそ、誰も経験したことのない特別な物語が始まるのかもしれません。宇宙は、ときに人知を超えた縁を結びます。",
-    "この数字に、星詠みは驚きを隠せませんでした。ふたりの間には、星でさえ測れない不思議な何かが流れています。その謎を解くのは、ふたりだけです。",
-    "「試練の縁ほど、深く刻まれる」という言い伝えがあります。この相性が示す道のりは平坦ではないかもしれませんが──それでも惹かれ合うなら、それが答えなのでしょう。",
-    "星図にこの組み合わせは載っていません。つまり、ふたりの縁はまだ誰にも書かれていない物語です。どんな結末になるか、星詠みも続きを楽しみにしています。",
-    "宇宙が「想定外」と呟いた瞬間を、星詠みは確かに感じました。けれど──想定外の出会いだからこそ、人生は面白いのです。",
+    "今はまだ、お互いの距離感を探る時期かもしれません。焦らず相手の考え方を知っていくことで、思いがけない接点が見えてくるでしょう。",
+    "価値観の違いが出やすい相性ですが、その違いは関係を広げるきっかけにもなります。丁寧な言葉選びが、ふたりの流れを変えてくれます。",
+    "すぐに答えを決めつけず、少しずつ歩み寄ることが大切です。今は修行編だと思えば、伸びしろはかなり大きめです。",
+    "星は、まだ余白の多い関係を示しています。名探偵なら見逃さない小さな伏線が、これから効いてくるかもしれません。",
+    "おふたりの関係には、慎重さと素直さの両方が必要です。秘密道具を探すより、まずは一言のやさしさが近道になります。",
   ],
   high: [
-    "出会うべくして出会ったふたり。互いの存在が、相手の世界をやわらかく照らします。言葉にしなくても伝わる安心感が、何よりの宝物。",
-    "星々もそっと祝福する関係。違いさえも愛おしく感じられ、一緒にいるほど深まっていく絆です。",
-    "磁石のように惹かれ合う相性。困難な夜ほど寄り添い、ふたりでひとつの光になれるでしょう。",
+    "お互いの存在が、自然と心を明るくしてくれる相性です。無理をしなくても距離が縮まりやすく、一緒にいるほど信頼が深まります。",
+    "違いさえも魅力として受け止めやすい関係です。素直な気持ちを伝えることで、恋の流れはさらに前向きに進んでいくでしょう。",
+    "惹かれ合う力が強く、支え合える相性です。ふたりで全集中すれば、日常の小さな壁も軽やかに越えていけそうです。",
+    "テンポの合いやすい相性です。まるで息ぴったりのチーム戦のように、相手の一手を自然に受け取れるでしょう。",
   ],
   mid: [
-    "穏やかに育っていく相性。焦らず、相手のペースを尊重することで、信頼はゆっくり確かに根を張ります。",
-    "ときに価値観の違いを感じても、それは互いを広げる扉。素直な言葉が、ふたりの距離をぐっと縮めます。",
-    "心地よい風のような関係。小さな「ありがとう」を重ねるほど、ふたりの時間は温かく彩られていきます。",
+    "穏やかに育っていく相性です。焦らず相手のペースを尊重することで、信頼はゆっくり確かなものになります。",
+    "ときに価値観の違いを感じても、それはお互いを知るための大切なきっかけです。素直な言葉が、ふたりの距離を縮めてくれます。",
+    "心地よい風のように、自然体で向き合える関係です。小さな感謝を重ねるほど、ふたりの時間は温かくなっていきます。",
+    "まだ派手な展開ではありませんが、じわじわ効いてくる良いご縁です。日常回を大切にすると、ちゃんと名場面が増えていきます。",
   ],
   low: [
-    "今はまだ手探りでも、だからこそ伸びしろは無限大。違いを面白がる心が、ふたりを強く結びます。",
-    "ゆっくり時間をかけて育てるほど深まる縁。相手の小さな優しさに気づける人が、この相性を花ひらかせます。",
-    "最初はすれ違っても、理解しようとする想いが奇跡を起こします。星は、歩み寄るふたりに味方します。",
+    "今はまだ手探りでも、関係を育てる余地は十分にあります。違いを否定せず、面白がる気持ちが距離を近づけます。",
+    "ゆっくり時間をかけるほど深まるご縁です。相手の小さな優しさに気づくことで、関係は少しずつ温まっていきます。",
+    "最初はすれ違いがあっても、理解しようとする姿勢が流れを変えます。歩み寄るほど、星はふたりの味方をしてくれるでしょう。",
+    "今はまだ序盤のライバル関係に見えますが、会話を重ねるほど印象は変わります。焦らず、次の話数を楽しみにしてみてください。",
   ],
 };
 
@@ -465,18 +468,18 @@ function showResult(o) {
     `<b>${escapeHTML(o.nameL)}</b><span class="heart">♡</span><b>${escapeHTML(o.nameR)}</b>`;
   document.getElementById("result-verdict").textContent = o.verdict;
   document.getElementById("result-message").textContent = o.message;
-  document.getElementById("score-label").textContent = "相性";
+  document.getElementById("score-label").textContent = "相性度";
 
   if (o.mode === "zodiac") {
     const emL = ELEMENT_META[o.zL.element], emR = ELEMENT_META[o.zR.element];
     document.getElementById("result-aspects").innerHTML = `
-      <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}の星</div></div>
-      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">いまの太陽は${o.sunSign.glyph}${o.sunSign.jp}</div></div>
-      <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}の星</div></div>`;
+      <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}のエレメント</div></div>
+      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">現在の太陽：${o.sunSign.glyph}${o.sunSign.jp}</div></div>
+      <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}のエレメント</div></div>`;
   } else {
     document.getElementById("result-aspects").innerHTML = `
       <div class="aspect"><b>${escapeHTML(firstChar(o.nameL))}</b><span>${escapeHTML(o.nameL)}</span><div class="el">&nbsp;</div></div>
-      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">ことだまの響き</div></div>
+      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">言霊の響き</div></div>
       <div class="aspect"><b>${escapeHTML(firstChar(o.nameR))}</b><span>${escapeHTML(o.nameR)}</span><div class="el">&nbsp;</div></div>`;
   }
 
