@@ -7,9 +7,27 @@
 
 const state = { left: null, right: null, mode: "name" };
 
-/* ---------- 占い儀式のBGMプリロード ---------- */
-const RITUAL_TRACKS = ["01.mp3", "02.mp3", "03.mp3", "04.mp3", "05.mp3"];
-const audioPool = RITUAL_TRACKS.map(src => { const a = new Audio(src); a.preload = "auto"; return a; });
+/* ---------- 占い儀式のBGMプリロード（fetch で確実にメモリに載せる） ---------- */
+const RITUAL_TRACKS = ["01.mp3", "02.mp3", "03.mp3", "04.mp3", "05v2.mp3"];
+const audioPool = [];
+let _audioReady = false;
+
+RITUAL_TRACKS.forEach(src => {
+  fetch(src)
+    .then(r => r.blob())
+    .then(blob => {
+      const a = new Audio(URL.createObjectURL(blob));
+      a.preload = "auto";
+      audioPool.push(a);
+      if (audioPool.length === RITUAL_TRACKS.length) _audioReady = true;
+    })
+    .catch(() => {
+      // フォールバック：通常のパスで登録
+      const a = new Audio(src);
+      a.preload = "auto";
+      audioPool.push(a);
+    });
+});
 let ritualAudio = null;
 const pickerState = {
   left: { index: 0, dragging: false, startX: 0, startIndex: 0, dragOffset: 0, releaseTimer: null },
@@ -308,8 +326,8 @@ function startDivination() {
   ritual.setAttribute("aria-hidden", "false");
 
   // プリロード済みの音源からランダムに1曲再生
-  const loaded = audioPool.filter(a => a.readyState >= 2);
-  ritualAudio = (loaded.length ? loaded : audioPool)[Math.floor(Math.random() * (loaded.length || audioPool.length))];
+  const pool = audioPool.length ? audioPool : RITUAL_TRACKS.map(s => { const a = new Audio(s); return a; });
+  ritualAudio = pool[Math.floor(Math.random() * pool.length)];
   ritualAudio.currentTime = 0;
   ritualAudio.play().catch(e => console.warn("[音效] 播放失败:", e));
 
@@ -411,18 +429,24 @@ function nameSeedParts(nameL, nameR) {
 }
 
 /* スコア分布を適用する。
-   1/12 の確率で「奇跡の高相性（93〜99）」、
-   1/12 の確率で「謎めいた低相性（5〜13）」が出現する。
-   残り 10/12 は 20〜90 の均一分布。 */
+   1/20 の確率で「奇跡の高相性（91〜99）」、
+   1/20 の確率で「謎めいた低相性（5〜17）」が出現する。
+   残りは正規分布風の山型：大部分が 70〜80 に集中。 */
 function applyScoreDistribution(raw, h3) {
-  const roll = h3 % 12;
+  const roll = h3 % 20;
   if (roll === 0) {
-    return { score: 93 + (h3 >>> 8) % 7, miracle: "high" }; // 93〜99
+    return { score: 91 + (h3 >>> 8) % 9, miracle: "high" }; // 91〜99（5%）
   }
   if (roll === 1) {
-    return { score: 5 + (h3 >>> 8) % 9, miracle: "low" };   // 5〜13
+    return { score: 5 + (h3 >>> 8) % 13, miracle: "low" };   // 5〜17（5%）
   }
-  return { score: Math.round(20 + raw * 70), miracle: null }; // 20〜90
+  // 通常分布：70〜80 に集中
+  const bucket = (h3 >>> 4) % 10;
+  const v = (h3 >>> 8);
+  if (bucket < 4) return { score: 70 + v % 11,  miracle: null }; // 70〜80（36%）
+  if (bucket < 7) return { score: 80 + v % 11,  miracle: null }; // 80〜90（27%）
+  if (bucket < 9) return { score: 50 + v % 21,  miracle: null }; // 50〜70（18%）
+  return             { score: 30 + v % 21,  miracle: null };     // 30〜50（9%）
 }
 
 /* ---- 黄道（太陽の位置）まわりの計算 ---- */
