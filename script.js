@@ -150,7 +150,7 @@ function startDivination() {
   const nameL = document.getElementById("name-left").value.trim();
   const nameR = document.getElementById("name-right").value.trim();
 
-  // ── 結果は“この瞬間”に確定（障眼法：見せている間に裏では決まっている） ──
+  // ── 結果は"この瞬間"に確定（障眼法：見せている間に裏では決まっている） ──
   const outcome = state.mode === "zodiac"
     ? computeCompatibility(nameL, state.left, nameR, state.right)
     : computeByName(nameL, nameR);
@@ -178,7 +178,7 @@ function runRitualSequence(outcome) {
   const caption = document.getElementById("ritual-caption");
   const bar = document.getElementById("ritual-progress-bar");
 
-  // 5〜8秒の中でランダムに総尺を決める（毎回わずかに違う“間”）
+  // 5〜8秒の中でランダムに総尺を決める（毎回わずかに違う"間"）
   const total = 5600 + Math.random() * 2000; // 5.6〜7.6s
   const t0 = performance.now();
 
@@ -251,16 +251,33 @@ function hashString(str) {
 /* 名前の等冪計算の素（ことだまの響き）。
    占う「いま」の日付＋時刻（時単位・分は含めない）を種に混ぜるので、
    同じ日付・同じ時・同じ二人なら結果は等冪。日付か時が変われば変わる。
-   星座モードでも“基礎”としてこの値を使う。 */
+   星座モードでも"基礎"としてこの値を使う。 */
 function nameSeedParts(nameL, nameR) {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}`;
   const seed = [nameL, nameR].sort().join("|") + "@" + stamp;
-  const h = hashString(seed);
+  const h  = hashString(seed);
   const h2 = hashString(seed + "✦");
-  const raw = (h % 1000) / 1000 * 0.5 + (h2 % 1000) / 1000 * 0.5; // 0〜1
-  return { raw, h, now };
+  const h3 = hashString(seed + "★"); // 奇跡枠の抽選に使う
+  // 単一ハッシュで均一分布（平均値への集中を避ける）
+  const raw = (h % 10000) / 10000;
+  return { raw, h, h2, h3, now };
+}
+
+/* スコア分布を適用する。
+   1/12 の確率で「奇跡の高相性（93〜99）」、
+   1/12 の確率で「謎めいた低相性（5〜13）」が出現する。
+   残り 10/12 は 20〜90 の均一分布。 */
+function applyScoreDistribution(raw, h3) {
+  const roll = h3 % 12;
+  if (roll === 0) {
+    return { score: 93 + (h3 >>> 8) % 7, miracle: "high" }; // 93〜99
+  }
+  if (roll === 1) {
+    return { score: 5 + (h3 >>> 8) % 9, miracle: "low" };   // 5〜13
+  }
+  return { score: Math.round(20 + raw * 70), miracle: null }; // 20〜90
 }
 
 /* ---- 黄道（太陽の位置）まわりの計算 ---- */
@@ -325,60 +342,96 @@ function zodiacAffinityBySun(keyL, keyR, sunLon) {
    姓名の等冪計算を基礎に、太陽の現在位置で測った星座相性を叠加する。 */
 function computeCompatibility(nameL, keyL, nameR, keyR) {
   const zL = findZodiac(keyL), zR = findZodiac(keyR);
-  const { raw: nameBase, h, now } = nameSeedParts(nameL, nameR);
+  const { raw: nameBase, h, h3, now } = nameSeedParts(nameL, nameR);
 
   const sunLon = sunEclipticLongitude(now);
   const z = zodiacAffinityBySun(keyL, keyR, sunLon);
-  const sameSign = keyL === keyR ? 0.04 : 0;
 
-  // 姓名（基礎）5割＋星座×太陽位置の相性5割
-  let raw = nameBase * 0.5 + z.score * 0.5 + sameSign;
-  raw = Math.max(0, Math.min(1, raw));
-  const score = Math.round(44 + raw * 55); // 44〜99
+  // 奇跡枠を先に抽選する（出た場合は星座相性を上書き）
+  const { score, miracle } = (() => {
+    const pre = applyScoreDistribution(nameBase, h3);
+    if (pre.miracle) return pre;
+    // 奇跡でない場合は姓名5割＋星座相性5割で補正
+    const sameSign = keyL === keyR ? 0.04 : 0;
+    const raw = Math.max(0, Math.min(1, nameBase * 0.5 + z.score * 0.5 + sameSign));
+    return { score: Math.round(20 + raw * 70), miracle: null };
+  })();
 
   return {
     mode: "zodiac",
-    score, nameL, nameR, zL, zR,
+    score, miracle, nameL, nameR, zL, zR,
     affinity: z.score, sunSign: z.sunSign,
-    verdict: pickVerdict(score),
-    message: pickMessage(score, zL, zR, h),
+    verdict: pickVerdict(score, miracle, h),
+    message: pickMessage(score, miracle, h),
     aspect: z.aspectName,
   };
 }
 
 /* 名前だけの相性（ことだまの響き）。星座を使わず姓名の等冪計算のみ。 */
 function computeByName(nameL, nameR) {
-  const { raw: base, h } = nameSeedParts(nameL, nameR);
-  const sameName = nameL === nameR ? 0.05 : 0;
-  const raw = Math.max(0, Math.min(1, base + sameName));
-  const score = Math.round(44 + raw * 55);    // 44〜99
+  const { raw, h, h3 } = nameSeedParts(nameL, nameR);
+  const { score, miracle } = applyScoreDistribution(raw, h3);
 
   return {
     mode: "name",
-    score, nameL, nameR, zL: null, zR: null,
-    verdict: pickVerdict(score),
-    message: pickMessage(score, null, null, h),
-    aspect: nameResonanceLabel(score),
+    score, miracle, nameL, nameR, zL: null, zR: null,
+    verdict: pickVerdict(score, miracle, h),
+    message: pickMessage(score, miracle, h),
+    aspect: nameResonanceLabel(score, miracle),
   };
 }
 
-function nameResonanceLabel(score) {
-  if (score >= 92) return "ことだまが、ぴたりと重なり合う";
-  if (score >= 82) return "ふたつの名が、やさしく響き合う";
-  if (score >= 72) return "名の調べが、心地よく溶け合う";
-  if (score >= 60) return "ふたつの音が、寄り添いはじめる";
+function nameResonanceLabel(score, miracle) {
+  if (miracle === "high") return "ことだまが、宇宙の果てまで轟き渡る";
+  if (miracle === "low")  return "ことだまが、星詠みさえ読めない波動を放っている";
+  if (score >= 82) return "ことだまが、ぴたりと重なり合う";
+  if (score >= 70) return "ふたつの名が、やさしく響き合う";
+  if (score >= 57) return "名の調べが、心地よく溶け合う";
+  if (score >= 42) return "ふたつの音が、寄り添いはじめる";
   return "名の響きが、少しずつ近づいてゆく";
 }
 
-function pickVerdict(s) {
-  if (s >= 92) return "運命の赤い糸 ─ 最高の相性";
-  if (s >= 82) return "星も微笑む ─ とても良い相性";
-  if (s >= 72) return "心かよう ─ 良い相性";
-  if (s >= 60) return "歩み寄りで深まる相性";
+const MIRACLE_HIGH_VERDICTS = [
+  "千年に一度の奇跡 ─ 星が震えるほどの相性",
+  "伝説の縁 ─ 星詠みが生涯で見た最高の相性",
+  "天地が認めた絆 ─ 宇宙規模の運命",
+  "星々が涙する ─ これは奇跡としか言いようがない",
+  "全星座が息を呑んで祝福する ─ 完璧なる相性",
+];
+
+const MIRACLE_LOW_VERDICTS = [
+  "宇宙が首をかしげた ─ 前代未聞の謎めいた縁",
+  "星詠みも驚愕 ─ 星図に存在しない相性",
+  "星が困惑している ─ 不可解な引力の予感",
+  "天の気まぐれ ─ この縁、波乱に満ちている",
+  "宇宙の試練 ─ それでも惹かれ合うふたりなら",
+];
+
+function pickVerdict(score, miracle, h) {
+  if (miracle === "high") return MIRACLE_HIGH_VERDICTS[h % MIRACLE_HIGH_VERDICTS.length];
+  if (miracle === "low")  return MIRACLE_LOW_VERDICTS[h % MIRACLE_LOW_VERDICTS.length];
+  if (score >= 82) return "運命の赤い糸 ─ 最高の相性";
+  if (score >= 70) return "星も微笑む ─ とても良い相性";
+  if (score >= 57) return "心かよう ─ 良い相性";
+  if (score >= 42) return "歩み寄りで深まる相性";
   return "ゆっくり育てていく相性";
 }
 
 const MESSAGES = {
+  miracle_high: [
+    "星詠みが長年の経験でほとんど目にしたことのない、奇跡の相性です。ふたりの魂は、この宇宙が始まる前から引き合うよう定められていたのかもしれません。大切に、どうか大切に。",
+    "この出会いに、天の川のすべての星が証人となっています。ふたりが同じ時代に生まれたこと自体が、宇宙からの贈り物です。",
+    "星詠みは、この数字を見て静かに息を呑みました。言葉では追いつかない尊さがあります──ふたりの縁は、もはや星の領域を超えています。",
+    "黄道十二宮が一瞬、回転を止めました。星々もこの相性の前では、ただ静かに祝福するほかないのです。",
+    "これほどの数字は、記録にもありません。ふたりが同じ場所で息をしているという事実だけで、もう奇跡です。",
+  ],
+  miracle_low: [
+    "星詠みも首をかしげる、前代未聞の相性です。でも──だからこそ、誰も経験したことのない特別な物語が始まるのかもしれません。宇宙は、ときに人知を超えた縁を結びます。",
+    "この数字に、星詠みは驚きを隠せませんでした。ふたりの間には、星でさえ測れない不思議な何かが流れています。その謎を解くのは、ふたりだけです。",
+    "「試練の縁ほど、深く刻まれる」という言い伝えがあります。この相性が示す道のりは平坦ではないかもしれませんが──それでも惹かれ合うなら、それが答えなのでしょう。",
+    "星図にこの組み合わせは載っていません。つまり、ふたりの縁はまだ誰にも書かれていない物語です。どんな結末になるか、星詠みも続きを楽しみにしています。",
+    "宇宙が「想定外」と呟いた瞬間を、星詠みは確かに感じました。けれど──想定外の出会いだからこそ、人生は面白いのです。",
+  ],
   high: [
     "出会うべくして出会ったふたり。互いの存在が、相手の世界をやわらかく照らします。言葉にしなくても伝わる安心感が、何よりの宝物。",
     "星々もそっと祝福する関係。違いさえも愛おしく感じられ、一緒にいるほど深まっていく絆です。",
@@ -396,10 +449,11 @@ const MESSAGES = {
   ],
 };
 
-function pickMessage(score, zL, zR, h) {
-  const bucket = score >= 80 ? "high" : score >= 64 ? "mid" : "low";
-  const arr = MESSAGES[bucket];
-  return arr[h % arr.length];
+function pickMessage(score, miracle, h) {
+  if (miracle === "high") return MESSAGES.miracle_high[h % MESSAGES.miracle_high.length];
+  if (miracle === "low")  return MESSAGES.miracle_low[h % MESSAGES.miracle_low.length];
+  const bucket = score >= 70 ? "high" : score >= 45 ? "mid" : "low";
+  return MESSAGES[bucket][h % MESSAGES[bucket].length];
 }
 
 /* ============================================================
