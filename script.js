@@ -5,7 +5,7 @@
    ・相性スコアは入力から決定論的に算出（同じ入力なら同じ結果）
    ============================================================ */
 
-const state = { left: null, right: null };
+const state = { left: null, right: null, mode: "name" };
 
 /* ---------- 起動 ---------- */
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,9 +13,26 @@ document.addEventListener("DOMContentLoaded", () => {
   buildWheel();
   initAmbientStars();
   bindUI();
+  setMode("name");
   updateSide("left");
   updateSide("right");
 });
+
+/* ---------- 占いモードの切り替え ---------- */
+function setMode(mode) {
+  state.mode = mode;
+  const stage = document.getElementById("stage");
+  stage.classList.toggle("mode-name", mode === "name");
+  stage.classList.toggle("mode-zodiac", mode === "zodiac");
+  document.querySelectorAll("#mode-switch .mode-btn").forEach((b) => {
+    const on = b.dataset.mode === mode;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  const ind = document.getElementById("mode-indicator");
+  if (ind) ind.style.transform = mode === "zodiac" ? "translateX(100%)" : "translateX(0)";
+  refreshReady();
+}
 
 /* ---------- 星座えらびのグリッドを生成 ---------- */
 function buildGrids() {
@@ -91,6 +108,14 @@ function bindUI() {
   document.getElementById("name-right").addEventListener("input", refreshReady);
   document.getElementById("divine-btn").addEventListener("click", startDivination);
   document.getElementById("again-btn").addEventListener("click", resetToStart);
+  document.querySelectorAll("#mode-switch .mode-btn").forEach((b) => {
+    b.addEventListener("click", () => setMode(b.dataset.mode));
+  });
+}
+
+/* このモードで占いに必要な星座がそろっているか */
+function zodiacReady() {
+  return state.mode === "name" || (state.left && state.right);
 }
 
 function namesFilled() {
@@ -100,12 +125,14 @@ function namesFilled() {
   );
 }
 function refreshReady() {
-  const ready = state.left && state.right && namesFilled();
+  const ready = zodiacReady() && namesFilled();
   const btn = document.getElementById("divine-btn");
   btn.classList.toggle("ready", !!ready);
   const hint = document.getElementById("hint-text");
-  if (ready) hint.textContent = "準備がととのいました。星に問いかけましょう ✦";
-  else hint.textContent = "ふたりの星座とお名前を入れて、星に問いかけましょう";
+  const need = state.mode === "zodiac"
+    ? "ふたりの星座とお名前を入れて、星に問いかけましょう"
+    : "ふたりのお名前を入れて、星に問いかけましょう";
+  hint.textContent = ready ? "準備がととのいました。星に問いかけましょう ✦" : need;
 }
 
 /* ============================================================
@@ -114,19 +141,28 @@ function refreshReady() {
 let ritualRAF = null;
 
 function startDivination() {
-  if (!(state.left && state.right && namesFilled())) {
-    flashHint("ふたりの星座とお名前を入れてくださいね");
+  if (!(zodiacReady() && namesFilled())) {
+    flashHint(state.mode === "zodiac"
+      ? "ふたりの星座とお名前を入れてくださいね"
+      : "ふたりのお名前を入れてくださいね");
     return;
   }
   const nameL = document.getElementById("name-left").value.trim();
   const nameR = document.getElementById("name-right").value.trim();
 
   // ── 結果は“この瞬間”に確定（障眼法：見せている間に裏では決まっている） ──
-  const outcome = computeCompatibility(nameL, state.left, nameR, state.right);
+  const outcome = state.mode === "zodiac"
+    ? computeCompatibility(nameL, state.left, nameR, state.right)
+    : computeByName(nameL, nameR);
 
-  // 儀式の中央に、選ばれたふたつの星座原画を据える
-  document.getElementById("orbit-1").innerHTML = buildConstellationSVG(findZodiac(state.left));
-  document.getElementById("orbit-2").innerHTML = buildConstellationSVG(findZodiac(state.right));
+  // 儀式の中央に置く原画（星座モード＝星座原画／名前モード＝ことだまの珠）
+  if (state.mode === "zodiac") {
+    document.getElementById("orbit-1").innerHTML = buildConstellationSVG(findZodiac(state.left));
+    document.getElementById("orbit-2").innerHTML = buildConstellationSVG(findZodiac(state.right));
+  } else {
+    document.getElementById("orbit-1").innerHTML = buildNameOrbSVG(nameL, "#f4a8c8");
+    document.getElementById("orbit-2").innerHTML = buildNameOrbSVG(nameR, "#b9a4ff");
+  }
 
   const ritual = document.getElementById("ritual");
   ritual.classList.add("active");
@@ -237,12 +273,45 @@ function computeCompatibility(nameL, keyL, nameR, keyR) {
   const score = Math.round(44 + raw * 55); // 44〜99
 
   return {
+    mode: "zodiac",
     score, nameL, nameR, zL, zR,
     affinity,
     verdict: pickVerdict(score),
     message: pickMessage(score, zL, zR, h),
     aspect: aspectLabel(zL, zR),
   };
+}
+
+/* 名前だけの相性（ことだまの響き）。星座を使わず、
+   ふたつの名前のハッシュから安定したスコアを導く。 */
+function computeByName(nameL, nameR) {
+  const seed = [nameL, nameR].sort().join("|");
+  const h = hashString(seed);
+  const h2 = hashString(seed + "✦");
+
+  const noise = (h % 1000) / 1000;            // 0〜1
+  const resonance = (h2 % 1000) / 1000;       // 0〜1（ことだまの共鳴）
+  const sameName = nameL === nameR ? 0.05 : 0;
+
+  let raw = noise * 0.5 + resonance * 0.5 + sameName;
+  raw = Math.max(0, Math.min(1, raw));
+  const score = Math.round(44 + raw * 55);    // 44〜99
+
+  return {
+    mode: "name",
+    score, nameL, nameR, zL: null, zR: null,
+    verdict: pickVerdict(score),
+    message: pickMessage(score, null, null, h),
+    aspect: nameResonanceLabel(score),
+  };
+}
+
+function nameResonanceLabel(score) {
+  if (score >= 92) return "ことだまが、ぴたりと重なり合う";
+  if (score >= 82) return "ふたつの名が、やさしく響き合う";
+  if (score >= 72) return "名の調べが、心地よく溶け合う";
+  if (score >= 60) return "ふたつの音が、寄り添いはじめる";
+  return "名の響きが、少しずつ近づいてゆく";
 }
 
 function pickVerdict(s) {
@@ -297,11 +366,18 @@ function showResult(o) {
   document.getElementById("result-message").textContent = o.message;
   document.getElementById("score-label").textContent = "相性";
 
-  const emL = ELEMENT_META[o.zL.element], emR = ELEMENT_META[o.zR.element];
-  document.getElementById("result-aspects").innerHTML = `
-    <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}の星</div></div>
-    <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">&nbsp;</div></div>
-    <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}の星</div></div>`;
+  if (o.mode === "zodiac") {
+    const emL = ELEMENT_META[o.zL.element], emR = ELEMENT_META[o.zR.element];
+    document.getElementById("result-aspects").innerHTML = `
+      <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}の星</div></div>
+      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">&nbsp;</div></div>
+      <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}の星</div></div>`;
+  } else {
+    document.getElementById("result-aspects").innerHTML = `
+      <div class="aspect"><b>${escapeHTML(firstChar(o.nameL))}</b><span>${escapeHTML(o.nameL)}</span><div class="el">&nbsp;</div></div>
+      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">ことだまの響き</div></div>
+      <div class="aspect"><b>${escapeHTML(firstChar(o.nameR))}</b><span>${escapeHTML(o.nameR)}</span><div class="el">&nbsp;</div></div>`;
+  }
 
   res.classList.add("active");
   res.setAttribute("aria-hidden", "false");
@@ -474,6 +550,33 @@ function stopRitualParticles() {
 }
 
 /* ---------- 小物 ---------- */
+/* 名前の最初の一文字（サロゲートペアにも安全に対応） */
+function firstChar(s) {
+  return s ? Array.from(s)[0] : "";
+}
+
+/* 名前モードの儀式用「ことだまの珠」SVG（名前の頭文字を宿す光球） */
+function buildNameOrbSVG(name, color) {
+  const ch = escapeHTML(firstChar(name));
+  const id = "orb_" + Math.random().toString(36).slice(2, 7);
+  return `
+  <svg viewBox="0 0 100 100" class="constellation-svg" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <radialGradient id="${id}-halo" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="${color}" stop-opacity="0.42"/>
+        <stop offset="0.7" stop-color="${color}" stop-opacity="0.12"/>
+        <stop offset="1" stop-color="${color}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="50" cy="50" r="48" fill="url(#${id}-halo)"/>
+    <circle cx="50" cy="50" r="30" fill="none" stroke="${color}" stroke-width="0.8" opacity="0.55"/>
+    <circle cx="50" cy="50" r="36" fill="none" stroke="#ffffff" stroke-width="0.4" opacity="0.4" stroke-dasharray="1 4"/>
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
+          fill="#fff" font-family="'Shippori Mincho', serif" font-size="34"
+          style="filter:drop-shadow(0 0 6px ${color})">${ch}</text>
+  </svg>`;
+}
+
 function escapeHTML(s) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Klee+One:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css?v=fe4bee6503" />
 </head>
 <body>
   <div class="cosmos-bg">
@@ -21,7 +21,12 @@
     <header class="stage-head">
       <div class="ornament">✦ ⋆ ˙ ⊹ ˙ ⋆ ✦</div>
       <h1 class="title">星詠みの相性占い</h1>
-      <p class="subtitle">― ふたりの星が織りなす運命を、そっと紐解いて ―</p>
+      <p class="subtitle">― ふたりの運命を、そっと紐解いて ―</p>
+      <div class="mode-switch" id="mode-switch" role="tablist">
+        <button class="mode-btn active" data-mode="name" role="tab">お名前だけで占う</button>
+        <button class="mode-btn" data-mode="zodiac" role="tab">お名前＋星座で占う</button>
+        <span class="mode-indicator" id="mode-indicator"></span>
+      </div>
     </header>
 
     <section class="panels">
@@ -109,7 +114,7 @@
     </div>
   </div>
 
-  <script src="zodiac.js"></script>
-  <script src="script.js"></script>
+  <script src="zodiac.js?v=46264ee84d"></script>
+  <script src="script.js?v=2aebe226b5"></script>
 </body>
 </html>

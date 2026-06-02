@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# 提交前自动刷新 index.html 的资源版本号（内容哈希）
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+"$ROOT/build.sh"
+git add "$ROOT/index.html"
