@@ -371,7 +371,6 @@ function runRitualSequence(outcome) {
 function finishRitual(outcome) {
   const ritual = document.getElementById("ritual");
   burstParticles(1.4); // フィナーレの大きな閃光
-  if (ritualAudio) { ritualAudio.pause(); ritualAudio.currentTime = 0; ritualAudio = null; }
   setTimeout(() => {
     ritual.classList.remove("active", "phase-enter", "phase-wheel", "phase-bind", "phase-read");
     ritual.setAttribute("aria-hidden", "true");
