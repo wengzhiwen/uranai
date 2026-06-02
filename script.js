@@ -36,9 +36,19 @@ function setMode(mode) {
   const ind = document.getElementById("mode-indicator");
   if (ind) ind.style.transform = mode === "zodiac" ? "translateX(100%)" : "translateX(0)";
   if (mode === "zodiac") {
+    if (!state.left) {
+      state.left = "leo";
+      pickerState.left.index = ZODIAC.findIndex((z) => z.key === "leo");
+    }
+    if (!state.right) {
+      state.right = "libra";
+      pickerState.right.index = ZODIAC.findIndex((z) => z.key === "libra");
+    }
     requestAnimationFrame(() => {
       updatePicker("left", false);
       updatePicker("right", false);
+      updateSide("left");
+      updateSide("right");
     });
   }
   refreshReady();
