@@ -33,6 +33,7 @@
   "launch.score_optional": "指定分数（可选）",
   "launch.score_placeholder": "0-100（留空自动）",
   "launch.btn_launch": "发起占卜",
+  "launch.btn_reset": "远程清空",
 
   "records.heading": "最近占卜记录",
   "records.col_time": "时间",

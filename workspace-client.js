@@ -68,8 +68,49 @@
 
   socket.on("divination_command", (payload) => {
     console.log("[ws] divination_command received", payload);
-    executeRemoteDivination(payload);
+    if (payload.action === "reset") {
+      executeRemoteReset(payload.mode || "name");
+    } else {
+      executeRemoteDivination(payload);
+    }
   });
+
+  // ── remote reset ──────────────────────────────────────
+
+  function executeRemoteReset(mode) {
+    // Stop any ongoing ritual
+    const ritual = document.getElementById("ritual");
+    ritual.classList.remove("active", "phase-enter", "phase-wheel", "phase-bind", "phase-read");
+    ritual.setAttribute("aria-hidden", "true");
+    stopRitualParticles();
+    if (ritualAudio) {
+      ritualAudio.pause();
+      ritualAudio.currentTime = 0;
+    }
+
+    // Hide result
+    const res = document.getElementById("result");
+    res.classList.remove("active");
+    res.setAttribute("aria-hidden", "true");
+
+    // Reset score ring
+    document.getElementById("ring-fill").style.strokeDashoffset = "603";
+    document.getElementById("score-value").textContent = "0";
+
+    // Show stage and switch mode
+    document.getElementById("stage").style.display = "";
+    setMode(mode);
+
+    // Clear inputs
+    document.getElementById("name-left").value = "";
+    document.getElementById("name-right").value = "";
+    if (mode === "zodiac") {
+      const selL = document.getElementById("zodiac-left");
+      const selR = document.getElementById("zodiac-right");
+      if (selL) selL.selectedIndex = 0;
+      if (selR) selR.selectedIndex = 0;
+    }
+  }
 
   // ── remote divination executor ────────────────────────
 

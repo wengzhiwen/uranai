@@ -33,6 +33,7 @@
   "launch.score_optional": "スコア指定（任意）",
   "launch.score_placeholder": "0-100（空欄で自動）",
   "launch.btn_launch": "占いを実行",
+  "launch.btn_reset": "リセット",
 
   "records.heading": "最近の占い記録",
   "records.col_time": "日時",

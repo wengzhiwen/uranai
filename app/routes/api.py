@@ -199,6 +199,23 @@ def divination_launch():
     return jsonify({"record": record.to_dict()})
 
 
+@api_bp.post("/divination/reset")
+def divination_reset():
+    ws, err = _require_workspace()
+    if err:
+        return err
+
+    data = request.get_json(force=True)
+    mode = data.get("mode", "name")
+    if mode not in ("name", "zodiac"):
+        mode = "name"
+
+    from ..socket_events import emit_divination_command
+
+    emit_divination_command(ws.path_token, {"action": "reset", "mode": mode})
+    return jsonify({"ok": True})
+
+
 @api_bp.get("/divination/recent")
 def divination_recent():
     ws, err = _require_workspace()

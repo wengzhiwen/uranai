@@ -363,7 +363,21 @@ body {
   font-weight: 600;
 }
 
-#launch-form .btn-action { margin-top: 4px; }
+.launch-actions { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-secondary:hover { opacity: .75; }
+.btn-secondary:disabled { opacity: .4; cursor: not-allowed; }
 
 /* ── records ────────────────────────────────────────── */
 

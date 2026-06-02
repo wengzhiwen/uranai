@@ -42,6 +42,8 @@
   let _socket = null;
   let _pageConnected = false;
   let _launchMode = "name";
+  let _launchCooldown = false;
+  let _rerunCooldown = false;
 
   // ── DOM refs ──────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -190,6 +192,11 @@
       }).finally(() => location.reload());
     });
 
+    // Reset button
+    $("btn-reset").addEventListener("click", async () => {
+      await api("POST", "/api/divination/reset", { mode: _launchMode });
+    });
+
     // Mode toggle
     document.querySelectorAll("#launch-form .mode-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -205,6 +212,7 @@
     // Launch form
     $("launch-form").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (_launchCooldown) return;
       $("launch-error").textContent = "";
       const body = {
         mode: _launchMode,
@@ -234,6 +242,26 @@
         $("launch-score").value = "";
         refreshRecords();
         toast("✦");
+        // 5-second cooldown via flag + button style
+        _launchCooldown = true;
+        const submitBtn = $("launch-form").querySelector('[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.removeAttribute("data-i18n");
+        let remaining = 5;
+        submitBtn.textContent = `${remaining}`;
+        const timer = setInterval(() => {
+          remaining--;
+          const btn = $("launch-form").querySelector('[type="submit"]');
+          if (remaining <= 0) {
+            clearInterval(timer);
+            _launchCooldown = false;
+            btn.disabled = false;
+            btn.setAttribute("data-i18n", "launch.btn_launch");
+            btn.textContent = t("launch.btn_launch");
+          } else {
+            btn.textContent = `${remaining}`;
+          }
+        }, 1000);
       } catch (err) {
         $("launch-error").textContent = err.message || "Error";
       }
@@ -292,13 +320,34 @@
     html += "</tbody></table>";
     wrap.innerHTML = html;
 
+    // Apply cooldown state to freshly rendered buttons
+    if (_rerunCooldown) {
+      wrap.querySelectorAll(".btn-rerun").forEach((b) => { b.disabled = true; });
+    }
+
     // Bind rerun buttons
     wrap.querySelectorAll(".btn-rerun").forEach((btn) => {
       btn.addEventListener("click", async () => {
+        if (_rerunCooldown) return;
+        _rerunCooldown = true;
         const id = btn.dataset.id;
         await api("POST", `/api/divination/rerun/${id}`);
         refreshRecords();
         toast("✦");
+        // 5-second cooldown: refreshRecords replaces DOM, so track via flag + update whichever btn is active
+        let remaining = 5;
+        const tick = () => {
+          remaining--;
+          if (remaining <= 0) {
+            _rerunCooldown = false;
+            wrap.querySelectorAll(".btn-rerun").forEach((b) => { b.disabled = false; b.removeAttribute("data-i18n-disabled"); });
+          } else {
+            wrap.querySelectorAll(".btn-rerun").forEach((b) => { b.disabled = true; });
+            setTimeout(tick, 1000);
+          }
+        };
+        wrap.querySelectorAll(".btn-rerun").forEach((b) => { b.disabled = true; });
+        setTimeout(tick, 1000);
       });
     });
   }

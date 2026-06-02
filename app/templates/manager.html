@@ -141,7 +141,10 @@
           <label data-i18n="launch.score_optional">スコア指定（任意）</label>
           <input type="number" id="launch-score" min="0" max="100" data-i18n-placeholder="launch.score_placeholder"/>
         </div>
-        <button type="submit" class="btn-action" data-i18n="launch.btn_launch">占いを実行</button>
+        <div class="launch-actions">
+          <button type="submit" class="btn-action" data-i18n="launch.btn_launch">占いを実行</button>
+          <button type="button" id="btn-reset" class="btn-secondary" data-i18n="launch.btn_reset">リセット</button>
+        </div>
         <p class="error-msg" id="launch-error"></p>
       </form>
     </section>
