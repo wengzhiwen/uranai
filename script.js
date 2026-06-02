@@ -323,17 +323,17 @@ function runRitualSequence(outcome) {
   const caption = document.getElementById("ritual-caption");
   const bar = document.getElementById("ritual-progress-bar");
 
-  // 5〜8秒の中でランダムに総尺を決める（毎回わずかに違う"間"）
-  const total = 5600 + Math.random() * 2000; // 5.6〜7.6s
+  // 2.8〜3.8秒（旧比の半尺）。毎回わずかに違う"間"は維持
+  const total = 2000 + Math.random() * 1000; // 2〜3s
   const t0 = performance.now();
 
+  // wheel×2 を1つに統合し5フェーズへ再設計。各フェーズ比率も見直し。
   const phases = [
     { at: 0.00, cls: "phase-enter", text: "星々がささやきはじめています…" },
-    { at: 0.14, cls: "phase-wheel", text: "黄道十二宮の導きをたどっています" },
-    { at: 0.34, cls: "phase-wheel", text: "おふたりの星が、静かに引き合っています…" },
-    { at: 0.52, cls: "phase-bind",  text: "運命の糸を、そっと結び合わせています…" },
-    { at: 0.74, cls: "phase-read",  text: "絆占いが、おふたりの相性を読み解いています…" },
-    { at: 0.90, cls: "phase-read",  text: "まもなく、鑑定結果をお届けします ✦" },
+    { at: 0.12, cls: "phase-wheel", text: "黄道十二宮の導きをたどっています" },
+    { at: 0.42, cls: "phase-bind",  text: "運命の糸を、そっと結び合わせています…" },
+    { at: 0.68, cls: "phase-read",  text: "絆占いが、おふたりの相性を読み解いています…" },
+    { at: 0.88, cls: "phase-read",  text: "まもなく、鑑定結果をお届けします ✦" },
   ];
   let phaseIdx = -1;
 

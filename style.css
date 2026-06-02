@@ -428,8 +428,8 @@ body {
 @keyframes orbitL { 0%,100%{transform:translate(-115%,-8%) rotate(-6deg)} 50%{transform:translate(-118%,8%) rotate(6deg)} }
 @keyframes orbitR { 0%,100%{transform:translate(115%,8%) rotate(6deg)} 50%{transform:translate(118%,-8%) rotate(-6deg)} }
 /* 結束フェーズで中央へ寄る */
-.ritual.phase-bind .orbit-1 { opacity: 1; animation: bindL 2.4s cubic-bezier(.4,0,.2,1) forwards; }
-.ritual.phase-bind .orbit-2 { opacity: 1; animation: bindR 2.4s cubic-bezier(.4,0,.2,1) forwards; }
+.ritual.phase-bind .orbit-1 { opacity: 1; animation: bindL 0.7s cubic-bezier(.4,0,.2,1) forwards; }
+.ritual.phase-bind .orbit-2 { opacity: 1; animation: bindR 0.7s cubic-bezier(.4,0,.2,1) forwards; }
 @keyframes bindL { 0%{transform:translate(-115%,0) rotate(0)} 100%{transform:translate(-26%,0) rotate(360deg)} }
 @keyframes bindR { 0%{transform:translate(115%,0) rotate(0)} 100%{transform:translate(26%,0) rotate(-360deg)} }
 .ritual.phase-read .orbit-1 { opacity: 0.9; transform: translate(-26%,0); animation: pulseGlow 1.4s ease-in-out infinite; }
