@@ -6,6 +6,11 @@
    ============================================================ */
 
 const state = { left: null, right: null, mode: "name" };
+
+/* ---------- 占い儀式のBGMプリロード ---------- */
+const RITUAL_TRACKS = ["01.mp3", "02.mp3", "03.mp3", "04.mp3"];
+const audioPool = RITUAL_TRACKS.map(src => { const a = new Audio(src); a.preload = "auto"; return a; });
+let ritualAudio = null;
 const pickerState = {
   left: { index: 0, dragging: false, startX: 0, startIndex: 0, dragOffset: 0, releaseTimer: null },
   right: { index: 0, dragging: false, startX: 0, startIndex: 0, dragOffset: 0, releaseTimer: null },
@@ -302,6 +307,12 @@ function startDivination() {
   ritual.classList.add("active");
   ritual.setAttribute("aria-hidden", "false");
 
+  // プリロード済みの音源からランダムに1曲再生
+  const loaded = audioPool.filter(a => a.readyState >= 2);
+  ritualAudio = (loaded.length ? loaded : audioPool)[Math.floor(Math.random() * (loaded.length || audioPool.length))];
+  ritualAudio.currentTime = 0;
+  ritualAudio.play().catch(() => {});
+
   startRitualParticles();
   runRitualSequence(outcome);
 }
@@ -360,6 +371,7 @@ function runRitualSequence(outcome) {
 function finishRitual(outcome) {
   const ritual = document.getElementById("ritual");
   burstParticles(1.4); // フィナーレの大きな閃光
+  if (ritualAudio) { ritualAudio.pause(); ritualAudio.currentTime = 0; ritualAudio = null; }
   setTimeout(() => {
     ritual.classList.remove("active", "phase-enter", "phase-wheel", "phase-bind", "phase-read");
     ritual.setAttribute("aria-hidden", "true");
@@ -656,6 +668,7 @@ function resetToStart() {
   res.setAttribute("aria-hidden", "true");
   document.getElementById("ring-fill").style.strokeDashoffset = "603";
   document.getElementById("score-value").textContent = "0";
+  if (ritualAudio) { ritualAudio.pause(); ritualAudio.currentTime = 0; ritualAudio = null; }
 }
 
 /* ============================================================
