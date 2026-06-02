@@ -8,7 +8,7 @@
 const state = { left: null, right: null, mode: "name" };
 
 /* ---------- 占い儀式のBGMプリロード ---------- */
-const RITUAL_TRACKS = ["01.mp3", "02.mp3", "03.mp3", "04.mp3", "05.mp3"];
+const RITUAL_TRACKS = ["01.mp3", "02.mp3", "03.mp3", "04.mp3", "05v2.mp3"];
 const audioPool = RITUAL_TRACKS.map(src => { const a = new Audio(src); a.preload = "auto"; return a; });
 let ritualAudio = null;
 const pickerState = {
