@@ -77,10 +77,13 @@ body {
   width: min(96vw, 800px, 128vh);
   aspect-ratio: 4 / 3;
   max-height: 96vh;
-  padding: clamp(14px, 2.4vmin, 30px);
+  /* 舞台をサイズコンテナにし、内部寸法(cqmin)が舞台 800×600 に追従するように。
+     ビューポートが大きくても中身が舞台からはみ出さない */
+  container-type: size;
+  padding: clamp(14px, 2.4cqmin, 30px);
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: clamp(8px, 1.6vmin, 18px);
+  gap: clamp(8px, 1.6cqmin, 18px);
   border-radius: 26px;
   background:
     linear-gradient(160deg, rgba(48,30,82,0.55), rgba(18,12,38,0.65));
@@ -100,21 +103,21 @@ body {
 
 /* ---------- ヘッダー ---------- */
 .stage-head { text-align: center; }
-.ornament { color: var(--gold); letter-spacing: 0.4em; font-size: clamp(10px, 1.6vmin, 14px);
+.ornament { color: var(--gold); letter-spacing: 0.4em; font-size: clamp(10px, 1.6cqmin, 14px);
   opacity: 0.85; margin-bottom: 0.3em; }
 .title {
   font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(22px, 4.6vmin, 44px);
+  font-size: clamp(22px, 4.6cqmin, 44px);
   letter-spacing: 0.16em; color: var(--gold-soft);
   text-shadow: 0 0 18px rgba(232,201,125,0.45), 0 2px 0 rgba(0,0,0,0.3);
 }
 .subtitle { font-family: var(--serif); color: var(--ink-soft);
-  font-size: clamp(10px, 1.7vmin, 15px); letter-spacing: 0.12em; margin-top: 0.5em; }
+  font-size: clamp(10px, 1.7cqmin, 15px); letter-spacing: 0.12em; margin-top: 0.5em; }
 
 /* ---------- 占いモード切り替え（セグメント） ---------- */
 .mode-switch {
   position: relative; display: inline-flex;
-  margin-top: clamp(8px, 1.6vmin, 14px);
+  margin-top: clamp(8px, 1.6cqmin, 14px);
   padding: 4px; border-radius: 999px;
   background: rgba(10,7,24,0.5);
   border: 1px solid rgba(232,201,125,0.28);
@@ -132,9 +135,9 @@ body {
   position: relative; z-index: 1;
   flex: 1 1 0; white-space: nowrap;
   font-family: var(--serif); font-weight: 600;
-  font-size: clamp(10px, 1.5vmin, 14px); letter-spacing: 0.08em;
+  font-size: clamp(10px, 1.5cqmin, 14px); letter-spacing: 0.08em;
   color: var(--ink-soft); background: transparent; border: 0;
-  padding: clamp(5px,1vmin,9px) clamp(12px,2.4vmin,22px);
+  padding: clamp(5px,1cqmin,9px) clamp(12px,2.4cqmin,22px);
   border-radius: 999px; cursor: pointer;
   transition: color .3s;
 }
@@ -145,22 +148,22 @@ body {
 .stage.mode-name .zodiac-display,
 .stage.mode-name .zodiac-name,
 .stage.mode-name .zodiac-grid { display: none; }
-.stage.mode-name .panel { justify-content: center; gap: clamp(14px,3vmin,28px); }
-.stage.mode-name .name-input { font-size: clamp(16px, 2.6vmin, 22px); }
+.stage.mode-name .panel { justify-content: center; gap: clamp(14px,3cqmin,28px); }
+.stage.mode-name .name-input { font-size: clamp(16px, 2.6cqmin, 22px); }
 
 /* ---------- パネル群 ---------- */
 .panels {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: clamp(6px, 1.4vmin, 16px);
+  gap: clamp(6px, 1.4cqmin, 16px);
   align-items: stretch;
   min-height: 0;
 }
 .panel {
   position: relative;
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(6px, 1.3vmin, 12px);
-  padding: clamp(10px, 1.8vmin, 18px) clamp(8px, 1.4vmin, 14px);
+  gap: clamp(6px, 1.3cqmin, 12px);
+  padding: clamp(10px, 1.8cqmin, 18px) clamp(8px, 1.4cqmin, 14px);
   border-radius: 18px;
   background: var(--panel);
   border: 1px solid var(--panel-line);
@@ -168,17 +171,17 @@ body {
   min-height: 0;
 }
 .panel-label {
-  font-family: var(--latin); letter-spacing: 0.28em; font-size: clamp(10px,1.5vmin,13px);
+  font-family: var(--latin); letter-spacing: 0.28em; font-size: clamp(10px,1.5cqmin,13px);
   color: var(--gold); text-transform: uppercase;
 }
 .panel-left  .panel-label::after { content: " ・ ひとりめ"; font-family: var(--serif); color: var(--ink-soft); letter-spacing: .1em; }
 .panel-right .panel-label::after { content: " ・ ふたりめ"; font-family: var(--serif); color: var(--ink-soft); letter-spacing: .1em; }
-.panel-left .panel-label, .panel-right .panel-label { font-size: clamp(9px,1.3vmin,12px); }
+.panel-left .panel-label, .panel-right .panel-label { font-size: clamp(9px,1.3cqmin,12px); }
 
 /* 選択中の星座原画 */
 .zodiac-display {
-  width: clamp(74px, 16vmin, 150px);
-  height: clamp(74px, 16vmin, 150px);
+  width: clamp(74px, 16cqmin, 150px);
+  height: clamp(74px, 16cqmin, 150px);
   display: grid; place-items: center;
   filter: drop-shadow(0 0 14px rgba(185,164,255,0.4));
   transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
@@ -186,7 +189,7 @@ body {
 .zodiac-display.pop { animation: pop 0.5s cubic-bezier(.2,1.4,.4,1); }
 @keyframes pop { 0%{transform:scale(.6);opacity:0} 60%{transform:scale(1.12)} 100%{transform:scale(1);opacity:1} }
 .zodiac-display.empty::before {
-  content: "☆"; font-size: clamp(36px,8vmin,72px); color: var(--ink-faint); opacity: 0.4;
+  content: "☆"; font-size: clamp(36px,8cqmin,72px); color: var(--ink-faint); opacity: 0.4;
 }
 .constellation-svg { width: 100%; height: 100%; }
 .constellation-glyph { font-family: var(--serif); font-size: 30px; opacity: 0.92;
@@ -198,7 +201,7 @@ body {
 
 .zodiac-name {
   font-family: var(--serif-old); font-weight: 600;
-  font-size: clamp(13px, 2.2vmin, 20px); letter-spacing: 0.12em;
+  font-size: clamp(13px, 2.2cqmin, 20px); letter-spacing: 0.12em;
   color: var(--gold-soft); min-height: 1.4em; text-align: center;
 }
 .zodiac-name .roma { display:block; font-family: var(--latin); font-size: 0.6em;
@@ -206,9 +209,9 @@ body {
 
 .name-input {
   width: 100%; max-width: 230px;
-  padding: clamp(7px,1.3vmin,11px) 14px;
+  padding: clamp(7px,1.3cqmin,11px) 14px;
   text-align: center;
-  font-family: var(--hand); font-size: clamp(14px, 2.1vmin, 18px);
+  font-family: var(--hand); font-size: clamp(14px, 2.1cqmin, 18px);
   color: var(--ink); letter-spacing: 0.08em;
   background: rgba(10,7,24,0.45);
   border: 1px solid rgba(232,201,125,0.3);
@@ -221,15 +224,16 @@ body {
 /* 星座えらびのグリッド */
 .zodiac-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(3px, 0.7vmin, 6px);
+  /* 横長・低めの版面に合わせ 6列×2行（縦に詰める） */
+  grid-template-columns: repeat(6, 1fr);
+  gap: clamp(3px, 0.7cqmin, 6px);
   width: 100%;
   margin-top: auto;
 }
 .zodiac-cell {
   aspect-ratio: 1/1;
   display: grid; place-items: center;
-  font-size: clamp(13px, 2.4vmin, 20px);
+  font-size: clamp(13px, 2.4cqmin, 20px);
   color: var(--ink-soft);
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.07);
@@ -254,8 +258,8 @@ body {
 
 .divine-btn {
   position: relative;
-  width: clamp(70px, 13vmin, 116px);
-  height: clamp(70px, 13vmin, 116px);
+  width: clamp(70px, 13cqmin, 116px);
+  height: clamp(70px, 13cqmin, 116px);
   border-radius: 50%;
   border: 1px solid var(--gold);
   background: radial-gradient(circle at 50% 35%, #2c1c52, #160d30);
@@ -275,9 +279,9 @@ body {
   animation: spin 5s linear infinite; opacity: 0.7; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .divine-btn .btn-text { position: relative; font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(18px, 3.4vmin, 30px); letter-spacing: 0.1em;
+  font-size: clamp(18px, 3.4cqmin, 30px); letter-spacing: 0.1em;
   text-shadow: 0 0 14px rgba(232,201,125,0.6); }
-.divine-btn .btn-sub { position: relative; font-size: clamp(7px,1.1vmin,9px);
+.divine-btn .btn-sub { position: relative; font-size: clamp(7px,1.1cqmin,9px);
   letter-spacing: 0.14em; color: var(--ink-soft); }
 .divine-btn:hover { transform: scale(1.06); }
 .divine-btn:active { transform: scale(0.97); }
@@ -286,7 +290,7 @@ body {
 
 /* ---------- フッター ---------- */
 .stage-foot { text-align: center; color: var(--ink-faint);
-  font-size: clamp(10px, 1.5vmin, 13px); letter-spacing: 0.08em; }
+  font-size: clamp(10px, 1.5cqmin, 13px); letter-spacing: 0.08em; }
 
 /* ============================================================
    占いの儀式（障眼法アニメーション）
@@ -457,5 +461,10 @@ body {
 
 /* ---------- 縦長端末向けの微調整 ---------- */
 @media (max-aspect-ratio: 3/4) {
-  .stage { width: 96vw; height: auto; aspect-ratio: auto; min-height: 96vh; }
+  /* 高さを内容に委ねるため、サイズコンテナを解除（size 指定だと潰れる）。
+     cqmin はコンテナ不在時ビューポート基準にフォールバックする */
+  .stage { width: 96vw; height: auto; aspect-ratio: auto; min-height: 96vh;
+    container-type: normal; }
+  /* 縦長では星座グリッドを4列に戻す */
+  .zodiac-grid { grid-template-columns: repeat(4, 1fr); }
 }
