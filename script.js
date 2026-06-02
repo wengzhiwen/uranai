@@ -469,18 +469,21 @@ function showResult(o) {
   document.getElementById("result-verdict").textContent = o.verdict;
   document.getElementById("result-message").textContent = o.message;
   document.getElementById("score-label").textContent = "相性度";
+  const aspectsEl = document.getElementById("result-aspects");
 
   if (o.mode === "zodiac") {
     const emL = ELEMENT_META[o.zL.element], emR = ELEMENT_META[o.zR.element];
-    document.getElementById("result-aspects").innerHTML = `
-      <div class="aspect"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}のエレメント</div></div>
-      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">現在の太陽：${o.sunSign.glyph}${o.sunSign.jp}</div></div>
-      <div class="aspect"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}のエレメント</div></div>`;
+    aspectsEl.className = "result-aspects zodiac-aspects";
+    aspectsEl.innerHTML = `
+      <div class="aspect aspect-side"><b>${o.zL.glyph}</b><span>${o.zL.jp}</span><div class="el">${emL.jp}のエレメント</div></div>
+      <div class="aspect aspect-center"><b>✧</b><span>${o.aspect}</span><div class="el">現在の太陽：${o.sunSign.glyph}${o.sunSign.jp}</div></div>
+      <div class="aspect aspect-side"><b>${o.zR.glyph}</b><span>${o.zR.jp}</span><div class="el">${emR.jp}のエレメント</div></div>`;
   } else {
-    document.getElementById("result-aspects").innerHTML = `
-      <div class="aspect"><b>${escapeHTML(firstChar(o.nameL))}</b><span>${escapeHTML(o.nameL)}</span><div class="el">&nbsp;</div></div>
-      <div class="aspect"><b>✧</b><span>${o.aspect}</span><div class="el">言霊の響き</div></div>
-      <div class="aspect"><b>${escapeHTML(firstChar(o.nameR))}</b><span>${escapeHTML(o.nameR)}</span><div class="el">&nbsp;</div></div>`;
+    aspectsEl.className = "result-aspects name-aspects";
+    aspectsEl.innerHTML = `
+      <div class="aspect aspect-side"><b>${escapeHTML(firstChar(o.nameL))}</b><span>${escapeHTML(o.nameL)}</span><div class="el">&nbsp;</div></div>
+      <div class="aspect aspect-center"><b>✧</b><span>${o.aspect}</span><div class="el">言霊の響き</div></div>
+      <div class="aspect aspect-side"><b>${escapeHTML(firstChar(o.nameR))}</b><span>${escapeHTML(o.nameR)}</span><div class="el">&nbsp;</div></div>`;
   }
 
   res.classList.add("active");
