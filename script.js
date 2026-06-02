@@ -6,6 +6,10 @@
    ============================================================ */
 
 const state = { left: null, right: null, mode: "name" };
+const pickerState = {
+  left: { index: 0, dragging: false, startX: 0, startIndex: 0, dragOffset: 0, releaseTimer: null },
+  right: { index: 0, dragging: false, startX: 0, startIndex: 0, dragOffset: 0, releaseTimer: null },
+};
 
 /* ---------- 起動 ---------- */
 document.addEventListener("DOMContentLoaded", () => {
@@ -31,32 +35,152 @@ function setMode(mode) {
   });
   const ind = document.getElementById("mode-indicator");
   if (ind) ind.style.transform = mode === "zodiac" ? "translateX(100%)" : "translateX(0)";
+  if (mode === "zodiac") {
+    requestAnimationFrame(() => {
+      updatePicker("left", false);
+      updatePicker("right", false);
+    });
+  }
   refreshReady();
 }
 
-/* ---------- 星座えらびのグリッドを生成 ---------- */
+/* ---------- 星座えらびのスライダーを生成 ---------- */
 function buildGrids() {
   ["left", "right"].forEach((side) => {
     const grid = document.getElementById("grid-" + side);
-    ZODIAC.forEach((z) => {
+    grid.classList.add("zodiac-picker");
+    grid.innerHTML = `
+      <button class="zodiac-nav zodiac-prev" type="button" aria-label="前の星座">‹</button>
+      <div class="zodiac-viewport" role="group" aria-label="星座を左右にスライドして選択" tabindex="0">
+        <div class="zodiac-track"></div>
+      </div>
+      <button class="zodiac-nav zodiac-next" type="button" aria-label="次の星座">›</button>`;
+
+    const track = grid.querySelector(".zodiac-track");
+    ZODIAC.forEach((z, i) => {
       const cell = document.createElement("button");
       cell.className = "zodiac-cell";
+      cell.type = "button";
       cell.textContent = z.glyph;
       cell.title = z.jp;
       cell.dataset.key = z.key;
-      cell.addEventListener("click", () => selectZodiac(side, z.key, cell));
-      grid.appendChild(cell);
+      cell.dataset.index = i;
+      cell.setAttribute("aria-label", z.jp);
+      cell.addEventListener("click", () => selectZodiac(side, z.key));
+      track.appendChild(cell);
     });
+
+    grid.querySelector(".zodiac-prev").addEventListener("click", () => stepZodiac(side, -1));
+    grid.querySelector(".zodiac-next").addEventListener("click", () => stepZodiac(side, 1));
+    bindZodiacDrag(side, grid.querySelector(".zodiac-viewport"));
+    updatePicker(side, false);
+  });
+  window.addEventListener("resize", () => {
+    updatePicker("left", false);
+    updatePicker("right", false);
   });
 }
 
-function selectZodiac(side, key, cell) {
+function selectZodiac(side, key) {
   state[side] = key;
-  const grid = document.getElementById("grid-" + side);
-  grid.querySelectorAll(".zodiac-cell").forEach((c) => c.classList.remove("selected"));
-  cell.classList.add("selected");
+  pickerState[side].index = ZODIAC.findIndex((z) => z.key === key);
+  pickerState[side].dragOffset = 0;
+  updatePicker(side, true);
   updateSide(side);
   refreshReady();
+}
+
+function stepZodiac(side, dir) {
+  const p = pickerState[side];
+  const next = clamp(p.index + dir, 0, ZODIAC.length - 1);
+  selectZodiac(side, ZODIAC[next].key);
+}
+
+function bindZodiacDrag(side, viewport) {
+  viewport.addEventListener("pointerdown", (e) => {
+    const p = pickerState[side];
+    p.dragging = true;
+    p.startX = e.clientX;
+    p.startIndex = p.index;
+    p.dragOffset = 0;
+    clearTimeout(p.releaseTimer);
+    viewport.classList.add("dragging");
+    viewport.setPointerCapture(e.pointerId);
+  });
+  viewport.addEventListener("pointermove", (e) => {
+    const p = pickerState[side];
+    if (!p.dragging) return;
+    p.dragOffset = e.clientX - p.startX;
+    updatePicker(side, false);
+    clearTimeout(p.releaseTimer);
+    p.releaseTimer = setTimeout(() => finishZodiacDrag(side, viewport), 320);
+  });
+  ["pointerup", "pointercancel"].forEach((eventName) => {
+    viewport.addEventListener(eventName, () => finishZodiacDrag(side, viewport));
+  });
+  window.addEventListener("pointerup", () => finishZodiacDrag(side, viewport));
+  window.addEventListener("pointercancel", () => finishZodiacDrag(side, viewport));
+  viewport.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); stepZodiac(side, -1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); stepZodiac(side, 1); }
+  });
+}
+
+function finishZodiacDrag(side, viewport) {
+  const p = pickerState[side];
+  if (!p.dragging) return;
+  clearTimeout(p.releaseTimer);
+  const step = getPickerStep(side);
+  const moved = Math.round(-p.dragOffset / step);
+  const next = clamp(p.startIndex + moved, 0, ZODIAC.length - 1);
+  p.dragging = false;
+  p.dragOffset = 0;
+  viewport.classList.remove("dragging");
+  selectZodiac(side, ZODIAC[next].key);
+}
+
+function updatePicker(side, animate) {
+  const grid = document.getElementById("grid-" + side);
+  if (!grid) return;
+  const p = pickerState[side];
+  const track = grid.querySelector(".zodiac-track");
+  const viewport = grid.querySelector(".zodiac-viewport");
+  const activeIndex = p.index;
+  const cell = track && track.querySelector(".zodiac-cell");
+  if (!(track && viewport && cell)) return;
+
+  const { step, cellWidth } = getPickerMetrics(side);
+  const viewportWidth = viewport.clientWidth || 160;
+  const x = viewportWidth / 2 - cellWidth / 2 - activeIndex * step + p.dragOffset;
+  track.style.transition = animate && !p.dragging ? "" : "none";
+  track.style.transform = `translate3d(${x}px, 0, 0)`;
+
+  track.querySelectorAll(".zodiac-cell").forEach((c) => {
+    const i = Number(c.dataset.index);
+    const dist = Math.abs(i - activeIndex);
+    c.classList.toggle("focused", dist === 0);
+    c.classList.toggle("near", dist === 1);
+    c.classList.toggle("selected", state[side] === c.dataset.key);
+    c.setAttribute("aria-pressed", state[side] === c.dataset.key ? "true" : "false");
+  });
+}
+
+function getPickerStep(side) {
+  return getPickerMetrics(side).step;
+}
+
+function getPickerMetrics(side) {
+  const grid = document.getElementById("grid-" + side);
+  const track = grid && grid.querySelector(".zodiac-track");
+  const cell = track && track.querySelector(".zodiac-cell");
+  if (!(track && cell)) return { step: 58, cellWidth: 46 };
+  const gap = parseFloat(getComputedStyle(track).gap) || 8;
+  const cellWidth = parseFloat(getComputedStyle(cell).width) || cell.offsetWidth || 46;
+  return { step: cellWidth + gap, cellWidth };
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
 }
 
 /* 選択中の星座原画と名前表示を更新 */
