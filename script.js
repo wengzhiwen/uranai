@@ -285,7 +285,12 @@ function computeCompatibility(nameL, keyL, nameR, keyR) {
 /* 名前だけの相性（ことだまの響き）。星座を使わず、
    ふたつの名前のハッシュから安定したスコアを導く。 */
 function computeByName(nameL, nameR) {
-  const seed = [nameL, nameR].sort().join("|");
+  // 占う「いま」の日付＋時刻（時単位・分は含めない）を種に混ぜる。
+  // 同じ日付・同じ時・同じ二人なら結果は等冪。日付か時が変われば結果も変わる。
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}`;
+  const seed = [nameL, nameR].sort().join("|") + "@" + stamp;
   const h = hashString(seed);
   const h2 = hashString(seed + "✦");
 
