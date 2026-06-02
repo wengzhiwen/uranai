@@ -311,7 +311,7 @@ function startDivination() {
   const loaded = audioPool.filter(a => a.readyState >= 2);
   ritualAudio = (loaded.length ? loaded : audioPool)[Math.floor(Math.random() * (loaded.length || audioPool.length))];
   ritualAudio.currentTime = 0;
-  ritualAudio.play().catch(() => {});
+  ritualAudio.play().catch(e => console.warn("[音效] 播放失败:", e));
 
   startRitualParticles();
   runRitualSequence(outcome);
