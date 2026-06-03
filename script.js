@@ -297,7 +297,7 @@ function refreshReady() {
    ============================================================ */
 let ritualRAF = null;
 
-function startDivination() {
+async function startDivination() {
   if (!(zodiacReady() && namesFilled())) {
     flashHint(state.mode === "zodiac"
       ? "おふたりの星座とお名前を入力してください"
@@ -307,10 +307,26 @@ function startDivination() {
   const nameL = document.getElementById("name-left").value.trim();
   const nameR = document.getElementById("name-right").value.trim();
 
-  // ── 結果は"この瞬間"に確定（障眼法：見せている間に裏では決まっている） ──
-  const outcome = state.mode === "zodiac"
-    ? computeCompatibility(nameL, state.left, nameR, state.right)
-    : computeByName(nameL, nameR);
+  // ── 結果はサーバーで確定（障眼法：見せている間に裏では決まっている） ──
+  let outcome;
+  try {
+    const body = { mode: state.mode, name_left: nameL, name_right: nameR };
+    if (state.mode === "zodiac") {
+      body.zodiac_left = state.left;
+      body.zodiac_right = state.right;
+    }
+    const resp = await fetch("/api/divination", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) throw new Error("Server error");
+    outcome = await resp.json();
+  } catch (e) {
+    console.error("占いに失敗しました:", e);
+    flashHint("占いに失敗しました。もう一度お試しください。");
+    return;
+  }
 
   // 儀式の中央に置く原画（星座モード＝星座原画／名前モード＝ことだまの珠）
   if (state.mode === "zodiac") {
@@ -398,9 +414,9 @@ function finishRitual(outcome) {
 }
 
 /* ============================================================
-   相性スコアの算出（決定論的）
-   名前と星座から安定したハッシュを作り、四元素の相性で補正。
-   結果が寂しくなりすぎないよう 44〜99% に収める。
+   相性スコアの算出（決定論的） — DEPRECATED: 計算はサーバー側に移行しました。
+   以下の関数群は startDivination() からはもう呼ばれません。
+   サーバーと一致するかの比較用途などで残しています。
    ============================================================ */
 function hashString(str) {
   let h = 0x811c9dc5;

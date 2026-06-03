@@ -1,12 +1,46 @@
 """
-占卜判词/消息的 Python 移植。
+占卜判词/消息/算法的 Python 实现。
 
-从 script.js 中移植 pickVerdict / pickMessage / nameResonanceLabel 等
-函数及其依赖的文本数组，用于服务端在「指定分数」或「记录存储」时
-生成完整的 outcome 对象。
+从 script.js / zodiac.js 中完整移植占卜算法，
+用于服务端统一计算（本地占卜 + 远程占卜共用）。
 """
 
+import math
 import random
+from datetime import datetime
+
+
+# ── 黄道十二宮データ ──────────────────────────────────────────────────
+
+ZODIAC = [
+    {"key": "aries",       "jp": "牡羊座",   "roma": "Aries",       "glyph": "♈", "element": "fire",  "date": "3/21 - 4/19"},
+    {"key": "taurus",      "jp": "牡牛座",   "roma": "Taurus",      "glyph": "♉", "element": "earth", "date": "4/20 - 5/20"},
+    {"key": "gemini",      "jp": "双子座",   "roma": "Gemini",      "glyph": "♊", "element": "air",   "date": "5/21 - 6/21"},
+    {"key": "cancer",      "jp": "蟹座",     "roma": "Cancer",      "glyph": "♋", "element": "water", "date": "6/22 - 7/22"},
+    {"key": "leo",         "jp": "獅子座",   "roma": "Leo",         "glyph": "♌", "element": "fire",  "date": "7/23 - 8/22"},
+    {"key": "virgo",       "jp": "乙女座",   "roma": "Virgo",       "glyph": "♍", "element": "earth", "date": "8/23 - 9/22"},
+    {"key": "libra",       "jp": "天秤座",   "roma": "Libra",       "glyph": "♎", "element": "air",   "date": "9/23 - 10/23"},
+    {"key": "scorpio",     "jp": "蠍座",     "roma": "Scorpio",     "glyph": "♏", "element": "water", "date": "10/24 - 11/22"},
+    {"key": "sagittarius", "jp": "射手座",   "roma": "Sagittarius", "glyph": "♐", "element": "fire",  "date": "11/23 - 12/21"},
+    {"key": "capricorn",   "jp": "山羊座",   "roma": "Capricorn",   "glyph": "♑", "element": "earth", "date": "12/22 - 1/19"},
+    {"key": "aquarius",    "jp": "水瓶座",   "roma": "Aquarius",    "glyph": "♒", "element": "air",   "date": "1/20 - 2/18"},
+    {"key": "pisces",      "jp": "魚座",     "roma": "Pisces",      "glyph": "♓", "element": "water", "date": "2/19 - 3/20"},
+]
+
+ELEMENT_META = {
+    "fire":  {"jp": "火",  "color": "#ff8a5c", "soft": "#ffd2b0"},
+    "earth": {"jp": "地",  "color": "#c4a86a", "soft": "#ecdcb0"},
+    "air":   {"jp": "風",  "color": "#9fd0ff", "soft": "#d6ecff"},
+    "water": {"jp": "水",  "color": "#a9a4ff", "soft": "#ddd9ff"},
+}
+
+
+def find_zodiac(key: str) -> dict | None:
+    for z in ZODIAC:
+        if z["key"] == key:
+            return z
+    return None
+
 
 # ── 判词数组 ──────────────────────────────────────────────────────────
 
@@ -118,8 +152,204 @@ def determine_miracle(score: int) -> str | None:
     return None
 
 
-# ── outcome 构建 ─────────────────────────────────────────────────────
+# ── ハッシュ（FNV-1a） ────────────────────────────────────────────────
+# JS の hashString と完全一致する 32bit unsigned 実装。
 
+def _hash_string(s: str) -> int:
+    """FNV-1a hash matching the JS hashString function."""
+    h = 0x811C9DC5
+    for ch in s:
+        h ^= ord(ch)
+        h = (h * 0x01000193) & 0xFFFFFFFF
+    return h
+
+
+# ── 名前の等冪計算の素（ことだまの響き） ──────────────────────────────
+# JS nameSeedParts と完全一致。
+# 占う「いま」の日付＋時刻（時単位）を種に混ぜる。
+
+def _name_seed_parts(name_left: str, name_right: str) -> dict:
+    now = datetime.now()
+    stamp = f"{now.year}-{now.month:02d}-{now.day:02d}-{now.hour:02d}"
+    seed = "|".join(sorted([name_left, name_right])) + "@" + stamp
+    h = _hash_string(seed)
+    h2 = _hash_string(seed + "✦")
+    h3 = _hash_string(seed + "★")
+    raw = (h % 10000) / 10000
+    return {"raw": raw, "h": h, "h2": h2, "h3": h3, "now": now}
+
+
+# ── スコア分布 ────────────────────────────────────────────────────────
+# JS applyScoreDistribution と完全一致。
+
+def _apply_score_distribution(raw: float, h3: int) -> dict:
+    roll = h3 % 20
+    if roll == 0:
+        return {"score": 91 + ((h3 >> 8) & 0xFF) % 9, "miracle": "high"}  # 91〜99 (5%)
+    if roll == 1:
+        return {"score": 5 + ((h3 >> 8) & 0xFF) % 13, "miracle": "low"}   # 5〜17 (5%)
+    # 通常分布：70〜80 に集中
+    bucket = (h3 >> 4) % 10
+    v = (h3 >> 8) & 0xFFFFFF
+    if bucket < 4:
+        return {"score": 70 + v % 11, "miracle": None}   # 70〜80 (36%)
+    if bucket < 7:
+        return {"score": 80 + v % 11, "miracle": None}   # 80〜90 (27%)
+    if bucket < 9:
+        return {"score": 50 + v % 21, "miracle": None}   # 50〜70 (18%)
+    return {"score": 30 + v % 21, "miracle": None}       # 30〜50 (9%)
+
+
+# ── 黄道（太陽の位置）まわりの計算 ────────────────────────────────────
+
+def _sun_ecliptic_longitude(dt: datetime) -> float:
+    """指定日時の太陽の黄経（0〜360°、春分点=牡羊座0°）。JS と同一算法。"""
+    epoch = datetime(1970, 1, 1)
+    jd = (dt - epoch).total_seconds() / 86400.0 + 2440587.5
+    n = jd - 2451545.0
+    L = 280.460 + 0.9856474 * n
+    g = (357.528 + 0.9856003 * n) * math.pi / 180.0
+    lon = L + 1.915 * math.sin(g) + 0.020 * math.sin(2 * g)
+    return ((lon % 360) + 360) % 360
+
+
+def _sign_center(key: str) -> int:
+    """星座の中心黄経（牡羊=15°, 牡牛=45° …）。"""
+    for i, z in enumerate(ZODIAC):
+        if z["key"] == key:
+            return i * 30 + 15
+    return 0
+
+
+def _ang_dist(a: float, b: float) -> float:
+    """2つの黄経の最小角差（0〜180°）。"""
+    d = ((a - b) % 360 + 360) % 360
+    return 360 - d if d > 180 else d
+
+
+# ── アスペクト（角度関係） ────────────────────────────────────────────
+
+_ASPECTS = [
+    {"a": 0,   "v": 0.88, "orb": 10},  # 合
+    {"a": 60,  "v": 0.82, "orb": 8},   # セクスタイル（吉）
+    {"a": 90,  "v": 0.40, "orb": 8},   # スクエア（凶）
+    {"a": 120, "v": 0.98, "orb": 10},  # トライン（大吉）
+    {"a": 150, "v": 0.38, "orb": 6},   # インコンジャクト（凶）
+    {"a": 180, "v": 0.62, "orb": 10},  # オポジション
+]
+
+
+def _aspect_harmony(deg: float) -> float:
+    """アスペクトの調和度を 0〜1 で返す。プトレマイオスの主要アスペクト。"""
+    acc = 0.0
+    wsum = 0.0
+    for asp in _ASPECTS:
+        w = max(0.0, 1 - abs(deg - asp["a"]) / asp["orb"])
+        acc += asp["v"] * w
+        wsum += w
+    return acc / wsum if wsum > 0 else 0.5
+
+
+_ASPECT_NAMES = {
+    0:   "重なり合うご縁（コンジャンクション）",
+    30:  "ゆるやかに近づくご縁（セミセクスタイル）",
+    60:  "心地よく支え合う関係（セクスタイル）",
+    90:  "刺激し合い成長できる関係（スクエア）",
+    120: "自然に響き合う関係（トライン）",
+    150: "歩み寄りが鍵になる関係（インコンジャンクト）",
+    180: "向き合うほど惹かれる関係（オポジション）",
+}
+
+
+def _aspect_name(sep: float) -> str:
+    s = round(sep / 30) * 30
+    return _ASPECT_NAMES.get(s, "星が示すご縁")
+
+
+def _zodiac_affinity_by_sun(key_left: str, key_right: str, sun_lon: float) -> dict:
+    """太陽の現在位置を踏まえた、ふたつの星座の相性（0〜1）。"""
+    c_left = _sign_center(key_left)
+    c_right = _sign_center(key_right)
+    sep = _ang_dist(c_left, c_right)
+    base_aspect = _aspect_harmony(sep)
+    sun_favor = (
+        _aspect_harmony(_ang_dist(sun_lon, c_left))
+        + _aspect_harmony(_ang_dist(sun_lon, c_right))
+    ) / 2
+    score = base_aspect * 0.65 + sun_favor * 0.35
+    sun_sign = ZODIAC[int(((sun_lon % 360 + 360) % 360) // 30)]
+    return {"score": score, "aspect_name": _aspect_name(sep), "sun_sign": sun_sign}
+
+
+# ── 統一入口：名前だけの相性 ──────────────────────────────────────────
+
+def compute_by_name(name_left: str, name_right: str) -> dict:
+    """名前だけの相性（ことだまの響き）。星座を使わず姓名の等冪計算のみ。
+    JS の computeByName() と完全一致。"""
+    parts = _name_seed_parts(name_left, name_right)
+    raw, h, h3 = parts["raw"], parts["h"], parts["h3"]
+    dist = _apply_score_distribution(raw, h3)
+
+    return {
+        "mode": "name",
+        "score": dist["score"],
+        "miracle": dist["miracle"],
+        "nameL": name_left,
+        "nameR": name_right,
+        "zL": None,
+        "zR": None,
+        "verdict": pick_verdict(dist["score"], dist["miracle"], h),
+        "message": pick_message(dist["score"], dist["miracle"], h),
+        "aspect": name_resonance_label(dist["score"], dist["miracle"]),
+    }
+
+
+# ── 統一入口：星座＋名前の相性 ────────────────────────────────────────
+
+def compute_compatibility(
+    name_left: str,
+    zodiac_left: str,
+    name_right: str,
+    zodiac_right: str,
+) -> dict:
+    """星座＋名前の相性。姓名の等冪計算を基礎に、太陽の現在位置で測った星座相性を叠加。
+    JS の computeCompatibility() と完全一致。"""
+    z_left = find_zodiac(zodiac_left)
+    z_right = find_zodiac(zodiac_right)
+    parts = _name_seed_parts(name_left, name_right)
+    raw, h, h3, now = parts["raw"], parts["h"], parts["h3"], parts["now"]
+
+    sun_lon = _sun_ecliptic_longitude(now)
+    z = _zodiac_affinity_by_sun(zodiac_left, zodiac_right, sun_lon)
+
+    # 奇跡枠を先に抽選する（出た場合は星座相性を上書き）
+    pre = _apply_score_distribution(raw, h3)
+    if pre["miracle"]:
+        score, miracle = pre["score"], pre["miracle"]
+    else:
+        # 奇跡でない場合は姓名5割＋星座相性5割で補正
+        same_sign = 0.04 if zodiac_left == zodiac_right else 0
+        blended = max(0.0, min(1.0, raw * 0.5 + z["score"] * 0.5 + same_sign))
+        score = round(20 + blended * 70)
+        miracle = None
+
+    return {
+        "mode": "zodiac",
+        "score": score,
+        "miracle": miracle,
+        "nameL": name_left,
+        "nameR": name_right,
+        "zL": z_left,
+        "zR": z_right,
+        "affinity": z["score"],
+        "sunSign": z["sun_sign"],
+        "verdict": pick_verdict(score, miracle, h),
+        "message": pick_message(score, miracle, h),
+        "aspect": z["aspect_name"],
+    }
+
+
+# ── 管理者スコア指定ビルド ────────────────────────────────────────────
 
 def build_outcome_with_score(
     score: int,
@@ -137,19 +367,36 @@ def build_outcome_with_score(
     message = pick_message(score, miracle, h)
     aspect = name_resonance_label(score, miracle)
 
-    return {
+    z_left = find_zodiac(zodiac_left) if zodiac_left else None
+    z_right = find_zodiac(zodiac_right) if zodiac_right else None
+
+    result = {
         "mode": mode,
         "score": score,
         "miracle": miracle,
         "nameL": name_left,
         "nameR": name_right,
-        "zL": zodiac_left,
-        "zR": zodiac_right,
+        "zL": z_left,
+        "zR": z_right,
         "verdict": verdict,
         "message": message,
         "aspect": aspect,
     }
 
+    # 星座モードの場合、追加フィールドを計算
+    if mode == "zodiac" and z_left and z_right:
+        now = datetime.now()
+        sun_lon = _sun_ecliptic_longitude(now)
+        z = _zodiac_affinity_by_sun(zodiac_left, zodiac_right, sun_lon)
+        result["affinity"] = z["score"]
+        result["sunSign"] = z["sun_sign"]
+        # 指定スコア時も星座モードなら aspect を星座名にする
+        result["aspect"] = z["aspect_name"]
+
+    return result
+
+
+# ── 互換：旧 build_outcome_normal（内部で統一関数を呼ぶ） ─────────────
 
 def build_outcome_normal(
     mode: str,
@@ -158,62 +405,7 @@ def build_outcome_normal(
     zodiac_left: str | None = None,
     zodiac_right: str | None = None,
 ) -> dict:
-    """Build an outcome using deterministic hash (mirrors JS logic).
-
-    For the server-side record, we don't need perfect parity with the client
-    (which uses time-of-day seeding). The client will compute its own result
-    for normal (non-override) divinations. This is used for record-keeping
-    when the manager does NOT specify a score — we still need a stored result.
-    """
-    # Use a simple hash to pick outcome deterministically for the record
-    combined = f"{name_left}|{name_right}"
-    h = _hash_string(combined)
-    h3 = _hash_string(combined + "★")
-    raw = (h % 10000) / 10000
-
-    # Score distribution (mirrors JS applyScoreDistribution)
-    roll = h3 % 20
-    v = (h3 >> 8) & 0xFFFF
-    if roll == 0:
-        score = 91 + v % 9
-        miracle = "high"
-    elif roll == 1:
-        score = 5 + v % 13
-        miracle = "low"
-    else:
-        bucket = (h3 >> 4) % 10
-        if bucket < 4:
-            score = 70 + v % 11   # 70-80 (36%)
-        elif bucket < 7:
-            score = 80 + v % 11   # 80-90 (27%)
-        elif bucket < 9:
-            score = 50 + v % 21   # 50-70 (18%)
-        else:
-            score = 30 + v % 21   # 30-50 (9%)
-        miracle = None
-
-    verdict = pick_verdict(score, miracle, h)
-    message = pick_message(score, miracle, h)
-    aspect = name_resonance_label(score, miracle)
-
-    return {
-        "mode": mode,
-        "score": score,
-        "miracle": miracle,
-        "nameL": name_left,
-        "nameR": name_right,
-        "zL": zodiac_left,
-        "zR": zodiac_right,
-        "verdict": verdict,
-        "message": message,
-        "aspect": aspect,
-    }
-
-
-def _hash_string(s: str) -> int:
-    """FNV-1a hash matching the JS hashString function."""
-    h = 0x811C9DC5
-    for ch in s:
-        h ^= ord(ch)
-        h = (h * 0x01000193) & 0xFFFFFFFF
-    return h
+    """Build an outcome using the unified algorithm (now identical to frontend)."""
+    if mode == "zodiac" and zodiac_left and zodiac_right:
+        return compute_compatibility(name_left, zodiac_left, name_right, zodiac_right)
+    return compute_by_name(name_left, name_right)

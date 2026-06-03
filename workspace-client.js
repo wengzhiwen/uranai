@@ -112,6 +112,11 @@
     }
   }
 
+  // ── zodiac helper: accept both string keys and full objects ──
+  function resolveZodiac(z) {
+    return typeof z === "string" ? findZodiac(z) : z;
+  }
+
   // ── remote divination executor ────────────────────────
 
   async function executeRemoteDivination(outcome) {
@@ -128,10 +133,12 @@
     // 2) Switch mode if needed
     if (outcome.mode === "zodiac" && outcome.zL && outcome.zR) {
       setMode("zodiac");
-      // Select zodiac signs
+      // Select zodiac signs (extract key from full objects or use string directly)
       if (typeof selectZodiac === "function") {
-        selectZodiac("left", outcome.zL);
-        selectZodiac("right", outcome.zR);
+        const zLKey = typeof outcome.zL === "string" ? outcome.zL : outcome.zL.key;
+        const zRKey = typeof outcome.zR === "string" ? outcome.zR : outcome.zR.key;
+        selectZodiac("left", zLKey);
+        selectZodiac("right", zRKey);
       }
     } else {
       setMode("name");
@@ -185,8 +192,8 @@
 
     // Set up the ritual orbit bodies
     if (outcome.mode === "zodiac" && outcome.zL && outcome.zR) {
-      document.getElementById("orbit-1").innerHTML = buildConstellationSVG(findZodiac(outcome.zL));
-      document.getElementById("orbit-2").innerHTML = buildConstellationSVG(findZodiac(outcome.zR));
+      document.getElementById("orbit-1").innerHTML = buildConstellationSVG(resolveZodiac(outcome.zL));
+      document.getElementById("orbit-2").innerHTML = buildConstellationSVG(resolveZodiac(outcome.zR));
     } else {
       document.getElementById("orbit-1").innerHTML = buildNameOrbSVG(nameL, "#f4a8c8");
       document.getElementById("orbit-2").innerHTML = buildNameOrbSVG(nameR, "#b9a4ff");
@@ -292,14 +299,15 @@
     // Aspects
     const aspectsEl = document.getElementById("result-aspects");
     if (o.mode === "zodiac" && o.zL && o.zR) {
-      const zL = findZodiac(o.zL);
-      const zR = findZodiac(o.zR);
+      const zL = resolveZodiac(o.zL);
+      const zR = resolveZodiac(o.zR);
       const emL = ELEMENT_META[zL.element];
       const emR = ELEMENT_META[zR.element];
+      const sunLabel = o.sunSign ? `現在の太陽：${o.sunSign.glyph}${o.sunSign.jp}` : " ";
       aspectsEl.className = "result-aspects zodiac-aspects";
       aspectsEl.innerHTML = `
         <div class="aspect aspect-side"><b>${zL.glyph}</b><span>${zL.jp}</span><div class="el">${emL.jp}のエレメント</div></div>
-        <div class="aspect aspect-center"><b>✧</b><span>${o.aspect}</span><div class="el">&nbsp;</div></div>
+        <div class="aspect aspect-center"><b>✧</b><span>${o.aspect}</span><div class="el">${sunLabel}</div></div>
         <div class="aspect aspect-side"><b>${zR.glyph}</b><span>${zR.jp}</span><div class="el">${emR.jp}のエレメント</div></div>`;
     } else {
       aspectsEl.className = "result-aspects name-aspects";

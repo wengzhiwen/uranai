@@ -110,6 +110,37 @@ def workspace_alias():
 # ── divination endpoints ─────────────────────────────────────────────
 
 
+@api_bp.post("/divination")
+def divination_compute():
+    """Public divination API — no workspace auth required.
+
+    Computes the outcome using the unified server-side algorithm
+    (identical to the former client-side JS computation).
+    """
+    data = request.get_json(force=True)
+    mode = data.get("mode", "name")
+    name_left = (data.get("name_left") or "").strip()
+    name_right = (data.get("name_right") or "").strip()
+    zodiac_left = data.get("zodiac_left")
+    zodiac_right = data.get("zodiac_right")
+
+    if not name_left or not name_right:
+        return jsonify({"error": "name_left and name_right are required"}), 400
+    if mode not in ("name", "zodiac"):
+        return jsonify({"error": "mode must be 'name' or 'zodiac'"}), 400
+    if mode == "zodiac" and (not zodiac_left or not zodiac_right):
+        return jsonify({"error": "zodiac_left and zodiac_right required in zodiac mode"}), 400
+
+    from ..divination import compute_by_name, compute_compatibility
+
+    if mode == "zodiac":
+        outcome = compute_compatibility(name_left, zodiac_left, name_right, zodiac_right)
+    else:
+        outcome = compute_by_name(name_left, name_right)
+
+    return jsonify(outcome)
+
+
 @api_bp.post("/divination/launch")
 def divination_launch():
     ws, err = _require_workspace()
@@ -147,8 +178,7 @@ def divination_launch():
             zodiac_right=zodiac_right,
         )
     else:
-        # Normal computation: let the client compute, but we still need
-        # verdict/message for the record. Use Python port.
+        # Normal computation: unified server-side algorithm
         from ..divination import build_outcome_normal
 
         outcome = build_outcome_normal(
@@ -180,21 +210,7 @@ def divination_launch():
     # Push to workspace divination page via WebSocket
     from ..socket_events import emit_divination_command
 
-    emit_divination_command(
-        ws.path_token,
-        {
-            "mode": mode,
-            "nameL": name_left,
-            "nameR": name_right,
-            "zL": zodiac_left,
-            "zR": zodiac_right,
-            "score": outcome["score"],
-            "miracle": outcome.get("miracle"),
-            "verdict": outcome["verdict"],
-            "message": outcome["message"],
-            "aspect": outcome["aspect"],
-        },
-    )
+    emit_divination_command(ws.path_token, outcome)
 
     return jsonify({"record": record.to_dict()})
 
@@ -243,6 +259,10 @@ def divination_rerun(record_id):
 
     # Push the same outcome again
     from ..socket_events import emit_divination_command
+    from ..divination import find_zodiac
+
+    zL_obj = find_zodiac(record.zodiac_left) if record.zodiac_left else None
+    zR_obj = find_zodiac(record.zodiac_right) if record.zodiac_right else None
 
     emit_divination_command(
         ws.path_token,
@@ -250,8 +270,8 @@ def divination_rerun(record_id):
             "mode": record.mode,
             "nameL": record.name_left,
             "nameR": record.name_right,
-            "zL": record.zodiac_left,
-            "zR": record.zodiac_right,
+            "zL": zL_obj,
+            "zR": zR_obj,
             "score": record.score,
             "miracle": record.miracle,
             "verdict": record.verdict,
