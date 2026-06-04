@@ -9,8 +9,20 @@
 
   const PATH_TOKEN = window.__WS_PATH_TOKEN__;
   const WS_ALIAS = window.__WS_ALIAS__;
+  const SKIN_IDS = new Set([
+    "royal-violet",
+    "starry-navy",
+    "emerald-oracle",
+    "black-gold",
+    "wine-covenant",
+    "teal-crystal",
+    "rose-twinkle",
+    "silver-mirror",
+    "champagne-crown",
+  ]);
 
   if (!PATH_TOKEN) return; // Not a workspace page
+  applySkin(sessionStorage.getItem(skinStorageKey()) || "royal-violet");
 
   // ── subtitle ─────────────────────────────────────────
   const subtitleEl = document.getElementById("ws-subtitle");
@@ -64,6 +76,10 @@
     if (subtitleEl && data.alias) {
       subtitleEl.textContent = "― " + data.alias + " ―";
     }
+  });
+
+  socket.on("skin_update", (data) => {
+    applySkin(data.skin);
   });
 
   socket.on("divination_command", (payload) => {
@@ -195,8 +211,8 @@
       document.getElementById("orbit-1").innerHTML = buildConstellationSVG(resolveZodiac(outcome.zL));
       document.getElementById("orbit-2").innerHTML = buildConstellationSVG(resolveZodiac(outcome.zR));
     } else {
-      document.getElementById("orbit-1").innerHTML = buildNameOrbSVG(nameL, "#f4a8c8");
-      document.getElementById("orbit-2").innerHTML = buildNameOrbSVG(nameR, "#b9a4ff");
+      document.getElementById("orbit-1").innerHTML = buildNameOrbSVG(nameL, themeColor("--skin-score-high", "#f4a8c8"));
+      document.getElementById("orbit-2").innerHTML = buildNameOrbSVG(nameR, themeColor("--skin-score-low", "#b9a4ff"));
     }
 
     const ritual = document.getElementById("ritual");
@@ -325,7 +341,12 @@
     const circ = 2 * Math.PI * 96;
     ring.style.strokeDasharray = circ.toFixed(1);
     ring.style.strokeDashoffset = circ.toFixed(1);
-    ring.style.stroke = o.score >= 80 ? "#f4a8c8" : o.score >= 64 ? "#e8c97d" : "#b9a4ff";
+    ring.style.stroke =
+      o.score >= 80
+        ? themeColor("--skin-score-high", "#f4a8c8")
+        : o.score >= 64
+          ? themeColor("--skin-score-mid", "#e8c97d")
+          : themeColor("--skin-score-low", "#b9a4ff");
 
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -333,5 +354,20 @@
         countUp(document.getElementById("score-value"), o.score, 2000);
       }, 250);
     });
+  }
+
+  function skinStorageKey() {
+    return "ws_skin_" + PATH_TOKEN;
+  }
+
+  function applySkin(skin) {
+    const id = SKIN_IDS.has(skin) ? skin : "royal-violet";
+    document.body.dataset.skin = id;
+    sessionStorage.setItem(skinStorageKey(), id);
+  }
+
+  function themeColor(name, fallback) {
+    const value = getComputedStyle(document.body).getPropertyValue(name).trim();
+    return value || fallback;
   }
 })();

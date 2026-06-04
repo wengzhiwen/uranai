@@ -37,6 +37,63 @@
     return _translations[key] || key;
   }
 
+  const SKINS = [
+    {
+      id: "royal-violet",
+      swatches: ["#2a174c", "#e8c97d"],
+      tone: { ja: "紫 × ゴールド", zh: "紫 × 金" },
+      name: { ja: "紫金ミラージュ", zh: "紫金幻星" },
+    },
+    {
+      id: "starry-navy",
+      swatches: ["#0e2b4b", "#e0ba62"],
+      tone: { ja: "ネイビー × ゴールド", zh: "海军蓝 × 金" },
+      name: { ja: "星降る紺金", zh: "深海金谕" },
+    },
+    {
+      id: "emerald-oracle",
+      swatches: ["#0b3e27", "#d5b15b"],
+      tone: { ja: "ダークグリーン × ゴールド", zh: "深绿 × 金" },
+      name: { ja: "深森オラクル", zh: "森绿秘签" },
+    },
+    {
+      id: "black-gold",
+      swatches: ["#0c0b09", "#d6a94e"],
+      tone: { ja: "ブラック × ゴールド", zh: "黑 × 金" },
+      name: { ja: "黒金グリモワール", zh: "黑金秘卷" },
+    },
+    {
+      id: "wine-covenant",
+      swatches: ["#5b111d", "#e1bd68"],
+      tone: { ja: "ワインレッド × ゴールド", zh: "酒红 × 金" },
+      name: { ja: "ワインレッドの誓い", zh: "酒红誓约" },
+    },
+    {
+      id: "teal-crystal",
+      swatches: ["#0b4951", "#dfbd68"],
+      tone: { ja: "ティール × ゴールド", zh: "青绿 × 金" },
+      name: { ja: "ティール水晶", zh: "青晶预言" },
+    },
+    {
+      id: "rose-twinkle",
+      swatches: ["#f0448a", "#c48a10"],
+      tone: { ja: "ピンク × ローズゴールド", zh: "粉色 × 玫瑰金" },
+      name: { ja: "ローズ恋きらめき", zh: "桃金恋咒" },
+    },
+    {
+      id: "silver-mirror",
+      swatches: ["#ffffff", "#aeb5bd"],
+      tone: { ja: "ホワイト × シルバー", zh: "白 × 银" },
+      name: { ja: "白銀ムーンミラー", zh: "银白月镜" },
+    },
+    {
+      id: "champagne-crown",
+      swatches: ["#ffe28a", "#d59c20"],
+      tone: { ja: "ゴールド × シャンパン", zh: "金 × 香槟金" },
+      name: { ja: "シャンパン金環", zh: "香槟王冠" },
+    },
+  ];
+
   // ── state ─────────────────────────────────────────────
   let _workspace = null;
   let _socket = null;
@@ -44,6 +101,7 @@
   let _launchMode = "name";
   let _launchCooldown = false;
   let _rerunCooldown = false;
+  let _skinId = "royal-violet";
 
   // ── DOM refs ──────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -77,7 +135,10 @@
         await loadLang(_lang);
         applyLang(_lang);
         // Re-render records if on dashboard
-        if (_workspace) refreshRecords();
+        if (_workspace) {
+          renderSkinOptions();
+          refreshRecords();
+        }
       });
       btn.classList.toggle("active", btn.dataset.lang === _lang);
     });
@@ -157,6 +218,8 @@
     const url = buildDivinationUrl(_workspace.path_token);
     $("divination-url").value = url;
     $("btn-open-url").href = url;
+    _skinId = localStorage.getItem(skinStorageKey()) || "royal-violet";
+    renderSkinOptions();
 
     setupSocket();
     bindDashboard();
@@ -268,6 +331,50 @@
     });
   }
 
+  // ── skin remote ──────────────────────────────────────
+
+  function skinStorageKey() {
+    return _workspace ? `mgr_skin_${_workspace.id}` : "mgr_skin";
+  }
+
+  function renderSkinOptions() {
+    const grid = $("skin-grid");
+    if (!grid) return;
+    grid.innerHTML = SKINS.map((skin) => {
+      const name = skin.name[_lang] || skin.name.ja;
+      const tone = skin.tone[_lang] || skin.tone.ja;
+      const active = skin.id === _skinId;
+      const swatches = skin.swatches
+        .map((color) => `<span class="skin-swatch" style="background:${color}"></span>`)
+        .join("");
+      return `<button type="button" class="skin-option${active ? " active" : ""}" data-skin="${skin.id}" role="radio" aria-checked="${active ? "true" : "false"}">
+        <span class="skin-swatches">${swatches}</span>
+        <span>
+          <span class="skin-name">${esc(name)}</span>
+          <span class="skin-tone">${esc(tone)}</span>
+        </span>
+      </button>`;
+    }).join("");
+
+    grid.querySelectorAll(".skin-option").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        _skinId = btn.dataset.skin;
+        localStorage.setItem(skinStorageKey(), _skinId);
+        renderSkinOptions();
+        await sendSkin(_skinId);
+      });
+    });
+  }
+
+  async function sendSkin(skin, silent) {
+    const resp = await api("POST", "/api/workspace/skin", { skin });
+    if (!resp.ok) {
+      if (!silent) toast("Error");
+      return;
+    }
+    if (!silent) toast("✦");
+  }
+
   // ── records ───────────────────────────────────────────
 
   async function refreshRecords() {
@@ -368,6 +475,7 @@
     _socket.on("page_connected", () => {
       _pageConnected = true;
       updatePageStatus(true);
+      sendSkin(_skinId, true);
     });
 
     _socket.on("page_disconnected", () => {

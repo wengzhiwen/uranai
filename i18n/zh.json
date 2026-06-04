@@ -22,6 +22,8 @@
   "dash.page_disconnected": "未连接",
   "dash.page_status_hint": "打开占卜页面后将自动连接",
 
+  "skin.heading": "页面皮肤",
+
   "launch.heading": "发起占卜",
   "launch.mode_label": "模式",
   "launch.mode_name": "姓名占卜",

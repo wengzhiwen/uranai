@@ -1,0 +1,498 @@
+/* Workspace-only visual skins. The original standalone page stylesheet remains untouched. */
+
+body[data-skin] {
+  --active-ink: #1a1038;
+  --skin-stage-bg: linear-gradient(160deg, rgba(48,30,82,0.55), rgba(18,12,38,0.65));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, #2a1a52 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, var(--bg-1) 0%, rgba(10,7,24,0.85) 45%, transparent 72%);
+  --skin-input-bg: rgba(10,7,24,0.45);
+  --skin-panel-shadow: rgba(141,107,255,0.08);
+  --skin-nebula-a: rgba(217,122,166,0.55);
+  --skin-nebula-b: rgba(141,107,255,0.5);
+  --skin-nebula-c: rgba(232,201,125,0.32);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(16,10,34,0.92) 0%, rgba(10,7,24,0.7) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(24,14,52,0.92) 0%, rgba(10,7,24,0.72) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(48,30,82,0.7), rgba(18,12,38,0.8));
+  --skin-title-color: var(--gold-soft);
+  --skin-title-shadow: 0 0 18px rgba(232,201,125,0.45), 0 2px 0 rgba(0,0,0,0.3);
+  --skin-control-text: var(--ink-soft);
+  --skin-divine-text: var(--gold-soft);
+  --skin-divine-sub: var(--ink-soft);
+  --skin-result-primary: var(--ink-soft);
+  --skin-result-strong: var(--gold-soft);
+  --skin-result-muted: var(--ink-faint);
+  --skin-result-accent: var(--rose);
+  --skin-result-score: var(--gold-soft);
+  --skin-result-button: var(--gold-soft);
+  --skin-result-shadow: 0 0 18px rgba(244,168,200,0.5);
+  --skin-result-aura-opacity: 0.5;
+  --skin-ring-track: rgba(255,255,255,0.1);
+}
+
+body[data-skin="royal-violet"] {
+  --ink: #efe9ff;
+  --ink-soft: #c8c0e8;
+  --ink-faint: #8f87b8;
+  --gold: #e8c97d;
+  --gold-soft: #f5e2ad;
+  --rose: #f4a8c8;
+  --rose-deep: #d97aa6;
+  --lilac: #b9a4ff;
+  --violet: #8d6bff;
+  --bg-0: #0a0718;
+  --bg-1: #160f2e;
+  --bg-2: #241640;
+  --panel: rgba(36,22,64,0.42);
+  --panel-line: rgba(232,201,125,0.28);
+  --skin-score-high: #f4a8c8;
+  --skin-score-mid: #e8c97d;
+  --skin-score-low: #b9a4ff;
+}
+
+body[data-skin="starry-navy"] {
+  --ink: #f2ead5;
+  --ink-soft: #c7b994;
+  --ink-faint: #748099;
+  --gold: #e0ba62;
+  --gold-soft: #ffe29a;
+  --rose: #f1c96f;
+  --rose-deep: #b88b3e;
+  --lilac: #5d8ac9;
+  --violet: #1f4f85;
+  --bg-0: #050b14;
+  --bg-1: #09192b;
+  --bg-2: #122a48;
+  --panel: rgba(8,22,39,0.58);
+  --panel-line: rgba(224,186,98,0.35);
+  --skin-stage-bg: linear-gradient(160deg, rgba(18,42,72,0.68), rgba(4,10,20,0.78));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(28,70,112,0.88) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, #0a1728 0%, rgba(4,9,18,0.9) 48%, transparent 74%);
+  --skin-input-bg: rgba(2,7,14,0.68);
+  --skin-panel-shadow: rgba(32,92,150,0.16);
+  --skin-nebula-a: rgba(45,103,156,0.46);
+  --skin-nebula-b: rgba(219,176,85,0.34);
+  --skin-nebula-c: rgba(109,154,214,0.3);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(6,18,32,0.94) 0%, rgba(4,10,20,0.76) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(10,25,43,0.94) 0%, rgba(4,9,18,0.76) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(18,42,72,0.78), rgba(4,10,20,0.88));
+  --skin-score-high: #ffe29a;
+  --skin-score-mid: #e0ba62;
+  --skin-score-low: #5d8ac9;
+}
+
+body[data-skin="emerald-oracle"] {
+  --ink: #eef9e8;
+  --ink-soft: #b8d8b8;
+  --ink-faint: #6e9479;
+  --gold: #d5b15b;
+  --gold-soft: #ffe39c;
+  --rose: #9ee0b2;
+  --rose-deep: #4e9c69;
+  --lilac: #55b987;
+  --violet: #156a4e;
+  --bg-0: #03100c;
+  --bg-1: #06251a;
+  --bg-2: #0d3a27;
+  --panel: rgba(5,36,24,0.58);
+  --panel-line: rgba(213,177,91,0.33);
+  --skin-stage-bg: linear-gradient(160deg, rgba(11,62,39,0.68), rgba(3,16,12,0.78));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(16,84,54,0.9) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, #062319 0%, rgba(2,14,10,0.9) 48%, transparent 74%);
+  --skin-input-bg: rgba(2,12,9,0.7);
+  --skin-panel-shadow: rgba(58,160,96,0.14);
+  --skin-nebula-a: rgba(48,142,88,0.42);
+  --skin-nebula-b: rgba(214,177,91,0.34);
+  --skin-nebula-c: rgba(109,202,144,0.28);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(5,36,24,0.94) 0%, rgba(2,14,10,0.76) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(8,46,31,0.94) 0%, rgba(2,14,10,0.76) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(11,62,39,0.78), rgba(3,16,12,0.88));
+  --skin-score-high: #9ee0b2;
+  --skin-score-mid: #d5b15b;
+  --skin-score-low: #55b987;
+}
+
+body[data-skin="black-gold"] {
+  --ink: #f4ead5;
+  --ink-soft: #c9b789;
+  --ink-faint: #786f60;
+  --gold: #d6a94e;
+  --gold-soft: #ffe0a0;
+  --rose: #d6a94e;
+  --rose-deep: #916b2e;
+  --lilac: #8c7653;
+  --violet: #27221a;
+  --bg-0: #030303;
+  --bg-1: #0c0b09;
+  --bg-2: #1c1710;
+  --panel: rgba(12,11,9,0.68);
+  --panel-line: rgba(214,169,78,0.36);
+  --skin-stage-bg: linear-gradient(160deg, rgba(30,25,17,0.74), rgba(3,3,3,0.84));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(44,33,19,0.92) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, #0d0c0a 0%, rgba(2,2,2,0.9) 48%, transparent 74%);
+  --skin-input-bg: rgba(0,0,0,0.72);
+  --skin-panel-shadow: rgba(214,169,78,0.12);
+  --skin-nebula-a: rgba(214,169,78,0.28);
+  --skin-nebula-b: rgba(95,75,42,0.36);
+  --skin-nebula-c: rgba(255,224,160,0.2);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(16,13,9,0.95) 0%, rgba(2,2,2,0.78) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(22,17,10,0.95) 0%, rgba(2,2,2,0.78) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(30,25,17,0.84), rgba(3,3,3,0.9));
+  --skin-score-high: #ffe0a0;
+  --skin-score-mid: #d6a94e;
+  --skin-score-low: #8c7653;
+}
+
+body[data-skin="wine-covenant"] {
+  --ink: #fff0df;
+  --ink-soft: #e2b7a2;
+  --ink-faint: #9f6962;
+  --gold: #e1bd68;
+  --gold-soft: #ffe6a5;
+  --rose: #ff8d94;
+  --rose-deep: #b5323e;
+  --lilac: #be4b5a;
+  --violet: #6c1422;
+  --bg-0: #130307;
+  --bg-1: #330811;
+  --bg-2: #5b111d;
+  --panel: rgba(62,10,18,0.58);
+  --panel-line: rgba(225,189,104,0.34);
+  --skin-stage-bg: linear-gradient(160deg, rgba(94,17,29,0.68), rgba(22,3,7,0.8));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(115,24,36,0.9) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, #330811 0%, rgba(19,3,7,0.9) 48%, transparent 74%);
+  --skin-input-bg: rgba(15,2,5,0.7);
+  --skin-panel-shadow: rgba(190,75,90,0.16);
+  --skin-nebula-a: rgba(255,101,113,0.38);
+  --skin-nebula-b: rgba(225,189,104,0.3);
+  --skin-nebula-c: rgba(161,45,60,0.34);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(62,10,18,0.94) 0%, rgba(19,3,7,0.78) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(74,12,21,0.94) 0%, rgba(19,3,7,0.78) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(94,17,29,0.78), rgba(22,3,7,0.88));
+  --skin-score-high: #ff8d94;
+  --skin-score-mid: #e1bd68;
+  --skin-score-low: #be4b5a;
+}
+
+body[data-skin="teal-crystal"] {
+  --ink: #e7fbf8;
+  --ink-soft: #a8d8d2;
+  --ink-faint: #5f9694;
+  --gold: #dfbd68;
+  --gold-soft: #ffe7a6;
+  --rose: #77e0d8;
+  --rose-deep: #1e9e9a;
+  --lilac: #4bbac6;
+  --violet: #0b6972;
+  --bg-0: #021013;
+  --bg-1: #062b31;
+  --bg-2: #0b4951;
+  --panel: rgba(6,43,49,0.58);
+  --panel-line: rgba(223,189,104,0.33);
+  --skin-stage-bg: linear-gradient(160deg, rgba(11,75,84,0.68), rgba(2,16,19,0.8));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(16,96,104,0.9) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, #062b31 0%, rgba(2,16,19,0.9) 48%, transparent 74%);
+  --skin-input-bg: rgba(1,11,13,0.7);
+  --skin-panel-shadow: rgba(75,186,198,0.16);
+  --skin-nebula-a: rgba(62,191,186,0.36);
+  --skin-nebula-b: rgba(223,189,104,0.3);
+  --skin-nebula-c: rgba(41,126,151,0.34);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(6,43,49,0.94) 0%, rgba(2,16,19,0.78) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(7,54,61,0.94) 0%, rgba(2,16,19,0.78) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(11,75,84,0.78), rgba(2,16,19,0.88));
+  --skin-score-high: #77e0d8;
+  --skin-score-mid: #dfbd68;
+  --skin-score-low: #4bbac6;
+}
+
+body[data-skin="rose-twinkle"] {
+  --ink: #8c1246;
+  --ink-soft: #b93768;
+  --ink-faint: #d9789c;
+  --gold: #c48a10;
+  --gold-soft: #f6cf75;
+  --rose: #f0448a;
+  --rose-deep: #c71961;
+  --lilac: #ff8db6;
+  --violet: #df3f86;
+  --bg-0: #fff3f8;
+  --bg-1: #ffd4e4;
+  --bg-2: #ffbfd8;
+  --panel: rgba(255,248,251,0.72);
+  --panel-line: rgba(196,28,96,0.34);
+  --active-ink: #fff7fb;
+  --skin-stage-bg: linear-gradient(160deg, rgba(255,210,229,0.86), rgba(255,239,246,0.78));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(255,185,214,0.92) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, rgba(255,219,234,0.88) 0%, rgba(255,244,249,0.72) 48%, transparent 74%);
+  --skin-input-bg: rgba(255,250,253,0.76);
+  --skin-panel-shadow: rgba(240,68,138,0.14);
+  --skin-nebula-a: rgba(255,98,157,0.3);
+  --skin-nebula-b: rgba(255,184,207,0.38);
+  --skin-nebula-c: rgba(219,160,45,0.22);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(255,214,232,0.94) 0%, rgba(255,241,247,0.72) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(255,218,233,0.94) 0%, rgba(255,244,249,0.76) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,245,250,0.9), rgba(255,218,233,0.86));
+  --skin-score-high: #f0448a;
+  --skin-score-mid: #c48a10;
+  --skin-score-low: #ff8db6;
+  --skin-title-color: #d73275;
+  --skin-title-shadow: 0 1px 0 rgba(255,255,255,0.85), 0 0 12px rgba(215,50,117,0.22);
+  --skin-control-text: #9d1d55;
+  --skin-divine-text: #b01758;
+  --skin-divine-sub: #8c1246;
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,246,251,0.98), rgba(255,219,234,0.95));
+  --skin-result-primary: #9d1d55;
+  --skin-result-strong: #b01758;
+  --skin-result-muted: #c65f88;
+  --skin-result-accent: #e42f7c;
+  --skin-result-score: #c48a10;
+  --skin-result-button: #b01758;
+  --skin-result-shadow: 0 1px 0 rgba(255,255,255,0.72), 0 0 10px rgba(228,47,124,0.18);
+  --skin-result-aura-opacity: 0.18;
+  --skin-ring-track: rgba(157,29,85,0.14);
+}
+
+body[data-skin="silver-mirror"] {
+  --ink: #17191f;
+  --ink-soft: #39414c;
+  --ink-faint: #69727d;
+  --gold: #aeb5bd;
+  --gold-soft: #f6f8fa;
+  --rose: #c2cad2;
+  --rose-deep: #7c858f;
+  --lilac: #dfe4ea;
+  --violet: #b6bec8;
+  --bg-0: #f9fafb;
+  --bg-1: #eef1f4;
+  --bg-2: #dfe5ea;
+  --panel: rgba(255,255,255,0.72);
+  --panel-line: rgba(92,99,110,0.28);
+  --active-ink: #17191f;
+  --skin-stage-bg: linear-gradient(160deg, rgba(250,251,252,0.9), rgba(227,232,237,0.8));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(255,255,255,0.98) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, rgba(245,247,249,0.92) 0%, rgba(232,236,240,0.76) 48%, transparent 74%);
+  --skin-input-bg: rgba(255,255,255,0.84);
+  --skin-panel-shadow: rgba(110,118,128,0.12);
+  --skin-nebula-a: rgba(255,255,255,0.46);
+  --skin-nebula-b: rgba(160,168,178,0.32);
+  --skin-nebula-c: rgba(210,216,222,0.38);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(244,246,248,0.94) 0%, rgba(231,235,239,0.72) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(248,249,250,0.94) 0%, rgba(231,235,239,0.76) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(230,235,240,0.86));
+  --skin-score-high: #7c858f;
+  --skin-score-mid: #aeb5bd;
+  --skin-score-low: #4c525c;
+  --skin-title-color: #343b45;
+  --skin-title-shadow: 0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(52,59,69,0.18);
+  --skin-control-text: #222832;
+  --skin-divine-text: #252b33;
+  --skin-divine-sub: #3c4652;
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,255,255,0.98), rgba(235,239,243,0.96));
+  --skin-result-primary: #343b45;
+  --skin-result-strong: #252b33;
+  --skin-result-muted: #68717c;
+  --skin-result-accent: #5f6975;
+  --skin-result-score: #343b45;
+  --skin-result-button: #343b45;
+  --skin-result-shadow: 0 1px 0 rgba(255,255,255,0.92), 0 0 10px rgba(52,59,69,0.14);
+  --skin-result-aura-opacity: 0.12;
+  --skin-ring-track: rgba(52,59,69,0.13);
+}
+
+body[data-skin="champagne-crown"] {
+  --ink: #5a3500;
+  --ink-soft: #81571c;
+  --ink-faint: #ad7f34;
+  --gold: #d59c20;
+  --gold-soft: #ffe28a;
+  --rose: #e2b64d;
+  --rose-deep: #a86f12;
+  --lilac: #f5cf65;
+  --violet: #c48918;
+  --bg-0: #fff5cf;
+  --bg-1: #ffe7a8;
+  --bg-2: #f0c867;
+  --panel: rgba(255,244,199,0.74);
+  --panel-line: rgba(170,105,12,0.35);
+  --active-ink: #5a3500;
+  --skin-stage-bg: linear-gradient(160deg, rgba(255,224,130,0.86), rgba(255,246,211,0.78));
+  --skin-cosmos-bg:
+    radial-gradient(closest-side at 50% 42%, rgba(255,221,122,0.94) 0%, transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, rgba(255,231,168,0.9) 0%, rgba(255,247,216,0.72) 48%, transparent 74%);
+  --skin-input-bg: rgba(255,250,229,0.78);
+  --skin-panel-shadow: rgba(213,156,32,0.16);
+  --skin-nebula-a: rgba(255,214,98,0.38);
+  --skin-nebula-b: rgba(231,178,55,0.3);
+  --skin-nebula-c: rgba(255,240,174,0.38);
+  --skin-ritual-bg: radial-gradient(60% 60% at 50% 50%, rgba(255,232,156,0.94) 0%, rgba(255,247,216,0.72) 50%, transparent 78%);
+  --skin-result-bg: radial-gradient(62% 62% at 50% 45%, rgba(255,233,161,0.94) 0%, rgba(255,247,216,0.76) 52%, transparent 80%);
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,249,222,0.9), rgba(255,225,129,0.84));
+  --skin-score-high: #e2b64d;
+  --skin-score-mid: #d59c20;
+  --skin-score-low: #ad7f34;
+  --skin-title-color: #8a5300;
+  --skin-title-shadow: 0 1px 0 rgba(255,248,218,0.9), 0 0 12px rgba(138,83,0,0.2);
+  --skin-control-text: #6e4300;
+  --skin-divine-text: #7c4a00;
+  --skin-divine-sub: #5a3500;
+  --skin-result-card-bg: linear-gradient(160deg, rgba(255,249,222,0.98), rgba(255,228,139,0.95));
+  --skin-result-primary: #6e4300;
+  --skin-result-strong: #7c4a00;
+  --skin-result-muted: #a36f1a;
+  --skin-result-accent: #a96a00;
+  --skin-result-score: #9a5c00;
+  --skin-result-button: #8a5300;
+  --skin-result-shadow: 0 1px 0 rgba(255,248,218,0.82), 0 0 10px rgba(169,106,0,0.18);
+  --skin-result-aura-opacity: 0.14;
+  --skin-ring-track: rgba(110,67,0,0.14);
+}
+
+body[data-skin] .cosmos-bg {
+  background: var(--skin-cosmos-bg);
+}
+
+body[data-skin] .nebula-a {
+  background: radial-gradient(circle, var(--skin-nebula-a), transparent 65%);
+}
+
+body[data-skin] .nebula-b {
+  background: radial-gradient(circle, var(--skin-nebula-b), transparent 65%);
+}
+
+body[data-skin] .nebula-c {
+  background: radial-gradient(circle, var(--skin-nebula-c), transparent 65%);
+}
+
+body[data-skin] .stage {
+  background: var(--skin-stage-bg);
+  border-color: var(--panel-line);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08) inset,
+    0 30px 90px rgba(0,0,0,0.42),
+    0 0 70px var(--skin-panel-shadow);
+}
+
+body[data-skin] .stage::before,
+body[data-skin] .mode-switch,
+body[data-skin] .panel,
+body[data-skin] .name-input,
+body[data-skin] .again-btn {
+  border-color: var(--panel-line);
+}
+
+body[data-skin] .panel {
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.22), 0 0 24px var(--skin-panel-shadow) inset;
+}
+
+body[data-skin] .name-input,
+body[data-skin] .mode-switch,
+body[data-skin] .zodiac-nav,
+body[data-skin] .again-btn {
+  background: var(--skin-input-bg);
+}
+
+body[data-skin] .mode-btn.active,
+body[data-skin] .zodiac-cell.selected {
+  color: var(--active-ink);
+}
+
+body[data-skin] .title {
+  color: var(--skin-title-color);
+  text-shadow: var(--skin-title-shadow);
+}
+
+body[data-skin] .mode-btn,
+body[data-skin] .zodiac-cell {
+  color: var(--skin-control-text);
+}
+
+body[data-skin] .divine-btn {
+  background: radial-gradient(circle at 50% 35%, var(--bg-2), var(--bg-1));
+  color: var(--skin-divine-text);
+}
+
+body[data-skin] .divine-btn .btn-sub {
+  color: var(--skin-divine-sub);
+}
+
+body[data-skin="rose-twinkle"] .mode-btn.active,
+body[data-skin="rose-twinkle"] .zodiac-cell.selected {
+  color: #fff8fb;
+  text-shadow: 0 1px 0 rgba(120,0,52,0.22);
+}
+
+body[data-skin="rose-twinkle"] .divine-btn,
+body[data-skin="silver-mirror"] .divine-btn,
+body[data-skin="champagne-crown"] .divine-btn {
+  text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+}
+
+body[data-skin] .ritual {
+  background: var(--skin-ritual-bg);
+}
+
+body[data-skin] .result {
+  background: var(--skin-result-bg);
+}
+
+body[data-skin] .result-inner {
+  background: var(--skin-result-card-bg);
+}
+
+body[data-skin] .result-aura {
+  opacity: var(--skin-result-aura-opacity);
+}
+
+body[data-skin] .result-names,
+body[data-skin] .score-num i,
+body[data-skin] .score-label,
+body[data-skin] .result-message,
+body[data-skin] .aspect {
+  color: var(--skin-result-primary);
+}
+
+body[data-skin] .result-names b,
+body[data-skin] .aspect b {
+  color: var(--skin-result-strong);
+}
+
+body[data-skin] .result-names .heart,
+body[data-skin] .result-verdict {
+  color: var(--skin-result-accent);
+}
+
+body[data-skin] .result-verdict {
+  text-shadow: var(--skin-result-shadow);
+}
+
+body[data-skin] .score-num {
+  color: var(--skin-result-score);
+  text-shadow: var(--skin-result-shadow);
+}
+
+body[data-skin] .aspect .el {
+  color: var(--skin-result-muted);
+}
+
+body[data-skin] .again-btn {
+  color: var(--skin-result-button);
+}
+
+body[data-skin] .ring-track {
+  stroke: var(--skin-ring-track);
+}
+
+body[data-skin="rose-twinkle"] .cosmos-bg,
+body[data-skin="silver-mirror"] .cosmos-bg,
+body[data-skin="champagne-crown"] .cosmos-bg {
+  -webkit-mask: radial-gradient(72% 72% at 50% 50%, #000 40%, rgba(0,0,0,0.55) 64%, transparent 82%);
+          mask: radial-gradient(72% 72% at 50% 50%, #000 40%, rgba(0,0,0,0.55) 64%, transparent 82%);
+}

@@ -298,6 +298,71 @@ body {
 #page-status-text { color: var(--text-dim); }
 #page-status-text.connected { color: var(--success); }
 
+/* ── skin remote ─────────────────────────────────────── */
+
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skin-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 58px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+
+.skin-option:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.skin-option.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.skin-swatches {
+  display: flex;
+  gap: 4px;
+}
+
+.skin-swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255,255,255,0.32);
+  border-radius: 50%;
+}
+
+.skin-name {
+  display: block;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skin-tone {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
 /* ── launch form ────────────────────────────────────── */
 
 .form-row {
@@ -470,6 +535,7 @@ body {
 
 @media (max-width: 540px) {
   .form-names, .form-zodiac { grid-template-columns: 1fr; }
+  .skin-grid { grid-template-columns: 1fr; }
   .url-row { flex-wrap: wrap; }
   .url-row input { min-width: 0; }
   .dash-header { flex-direction: column; align-items: flex-start; }

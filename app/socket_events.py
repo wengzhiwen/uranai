@@ -2,6 +2,7 @@ from .extensions import socketio
 
 # Track connected workspace pages: path_token -> sid
 _ws_connections: dict[str, str] = {}
+_ws_skins: dict[str, str] = {}
 
 
 @socketio.on("join", namespace="/ws")
@@ -23,6 +24,13 @@ def ws_join(data):
     ws = Workspace.query.filter_by(path_token=path_token).first()
     if ws:
         socketio.emit("page_connected", {}, room=f"mgr_{ws.id}", namespace="/mgr")
+    if path_token in _ws_skins:
+        socketio.emit(
+            "skin_update",
+            {"skin": _ws_skins[path_token]},
+            room=room,
+            namespace="/ws",
+        )
 
 
 @socketio.on("join", namespace="/mgr")
@@ -80,3 +88,9 @@ def emit_divination_command(path_token: str, payload: dict):
 def emit_alias_update(path_token: str, alias: str):
     """Push an alias update to the workspace's divination page."""
     socketio.emit("alias_update", {"alias": alias}, room=f"ws_{path_token}", namespace="/ws")
+
+
+def emit_skin_update(path_token: str, skin: str):
+    """Push a visual skin update to the workspace's divination page."""
+    _ws_skins[path_token] = skin
+    socketio.emit("skin_update", {"skin": skin}, room=f"ws_{path_token}", namespace="/ws")

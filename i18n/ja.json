@@ -22,6 +22,8 @@
   "dash.page_disconnected": "未接続",
   "dash.page_status_hint": "占いページを開くと自動的に接続されます",
 
+  "skin.heading": "ページスキン",
+
   "launch.heading": "占いを実行",
   "launch.mode_label": "モード",
   "launch.mode_name": "名前で占う",

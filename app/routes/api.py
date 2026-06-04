@@ -11,6 +11,17 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 # Access code charset: digits 1-8 + lowercase letters excluding o,q
 _ACCESS_CODE_CHARS = "12345678abcdefghijkmnprstuvwxyz"
 _ACCESS_CODE_LEN = 8
+_SKIN_IDS = {
+    "royal-violet",
+    "starry-navy",
+    "emerald-oracle",
+    "black-gold",
+    "wine-covenant",
+    "teal-crystal",
+    "rose-twinkle",
+    "silver-mirror",
+    "champagne-crown",
+}
 
 
 def _generate_access_code():
@@ -105,6 +116,22 @@ def workspace_alias():
     emit_alias_update(ws.path_token, alias)
 
     return jsonify({"workspace": ws.to_dict()})
+
+
+@api_bp.post("/workspace/skin")
+def workspace_skin():
+    ws, err = _require_workspace()
+    if err:
+        return err
+    data = request.get_json(force=True)
+    skin = data.get("skin", "royal-violet")
+    if skin not in _SKIN_IDS:
+        return jsonify({"error": "invalid skin"}), 400
+
+    from ..socket_events import emit_skin_update
+
+    emit_skin_update(ws.path_token, skin)
+    return jsonify({"ok": True, "skin": skin})
 
 
 # ── divination endpoints ─────────────────────────────────────────────
