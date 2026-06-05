@@ -355,28 +355,22 @@ body[data-skin="champagne-crown"] {
 }
 
 body[data-skin] .cosmos-bg {
-  background: var(--skin-cosmos-bg);
+  background: transparent;
+  -webkit-mask: none;
+          mask: none;
 }
 
-body[data-skin] .nebula-a {
-  background: radial-gradient(circle, var(--skin-nebula-a), transparent 65%);
-}
-
-body[data-skin] .nebula-b {
-  background: radial-gradient(circle, var(--skin-nebula-b), transparent 65%);
-}
-
-body[data-skin] .nebula-c {
-  background: radial-gradient(circle, var(--skin-nebula-c), transparent 65%);
+body[data-skin] .nebula {
+  display: none;
 }
 
 body[data-skin] .stage {
-  background: var(--skin-stage-bg);
+  background: color-mix(in srgb, var(--bg-1) 88%, transparent);
   border-color: var(--panel-line);
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.08) inset,
-    0 30px 90px rgba(0,0,0,0.42),
-    0 0 70px var(--skin-panel-shadow);
+    0 0 5px 2px color-mix(in srgb, var(--bg-1) 72%, transparent),
+    0 0 11px 4px var(--skin-panel-shadow);
 }
 
 body[data-skin] .stage::before,
@@ -436,15 +430,15 @@ body[data-skin="champagne-crown"] .divine-btn {
 }
 
 body[data-skin] .ritual {
-  background: var(--skin-ritual-bg);
+  background: transparent;
 }
 
 body[data-skin] .result {
-  background: var(--skin-result-bg);
+  background: transparent;
 }
 
 body[data-skin] .result-inner {
-  background: var(--skin-result-card-bg);
+  background: color-mix(in srgb, var(--bg-1) 92%, transparent);
 }
 
 body[data-skin] .result-aura {
@@ -493,6 +487,6 @@ body[data-skin] .ring-track {
 body[data-skin="rose-twinkle"] .cosmos-bg,
 body[data-skin="silver-mirror"] .cosmos-bg,
 body[data-skin="champagne-crown"] .cosmos-bg {
-  -webkit-mask: radial-gradient(72% 72% at 50% 50%, #000 40%, rgba(0,0,0,0.55) 64%, transparent 82%);
-          mask: radial-gradient(72% 72% at 50% 50%, #000 40%, rgba(0,0,0,0.55) 64%, transparent 82%);
+  -webkit-mask: none;
+          mask: none;
 }
