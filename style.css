@@ -19,6 +19,7 @@
   --bg-2:       #241640;
   --panel:      rgba(36, 22, 64, 0.42);
   --panel-line: rgba(232, 201, 125, 0.28);
+  --obs-edge-space: clamp(8px, 1.6vmin, 16px);
   --serif:      "Shippori Mincho", "Zen Old Mincho", serif;
   --serif-old:  "Zen Old Mincho", "Shippori Mincho", serif;
   --latin:      "Cinzel", "Cormorant Garamond", serif;
@@ -67,18 +68,18 @@ body {
 }
 #ambient-stars { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ---------- 舞台（OBS 500×500 基準） ---------- */
+/* ---------- 舞台（OBS 500×500 / 1000×1000 基準） ---------- */
 .stage {
   position: relative; z-index: 2;
-  width: min(calc(100vw - 8px), calc(100vh - 8px), 492px);
+  width: min(calc(100vw - var(--obs-edge-space)), calc(100vh - var(--obs-edge-space)), 984px);
   aspect-ratio: 1 / 1;
-  max-height: 492px;
+  max-height: 984px;
   container-type: size;
-  padding: clamp(10px, 2.8cqmin, 14px);
+  padding: clamp(10px, 2.8cqmin, 28px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: clamp(6px, 1.6cqmin, 8px);
-  border-radius: 16px;
+  gap: clamp(6px, 1.6cqmin, 16px);
+  border-radius: clamp(16px, 3.2cqmin, 32px);
   background: rgba(18,12,38,0.88);
   border: 1px solid rgba(232,201,125,0.22);
   box-shadow:
@@ -89,28 +90,28 @@ body {
   overflow: hidden;
 }
 .stage::before { /* 金の二重枠 */
-  content: ""; position: absolute; inset: 7px; border-radius: 11px;
+  content: ""; position: absolute; inset: clamp(7px, 1.4cqmin, 14px); border-radius: clamp(11px, 2.2cqmin, 22px);
   border: 1px solid rgba(232,201,125,0.18);
   pointer-events: none;
 }
 
 /* ---------- ヘッダー ---------- */
 .stage-head { text-align: center; }
-.ornament { color: var(--gold); letter-spacing: 0.3em; font-size: clamp(9px, 1.8cqmin, 11px);
+.ornament { color: var(--gold); letter-spacing: 0.3em; font-size: clamp(9px, 1.8cqmin, 22px);
   opacity: 0.85; margin-bottom: 0.15em; }
 .title {
   font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(26px, 7.2cqmin, 36px);
+  font-size: clamp(26px, 7.2cqmin, 72px);
   letter-spacing: 0.16em; color: var(--gold-soft);
   text-shadow: 0 0 18px rgba(232,201,125,0.45), 0 2px 0 rgba(0,0,0,0.3);
 }
 .subtitle { font-family: var(--serif); color: var(--ink-soft);
-  font-size: clamp(9px, 2cqmin, 11px); letter-spacing: 0.08em; margin-top: 0.25em; }
+  font-size: clamp(9px, 2cqmin, 22px); letter-spacing: 0.08em; margin-top: 0.25em; }
 
 /* ---------- 占いモード切り替え（セグメント） ---------- */
 .mode-switch {
   position: relative; display: inline-flex;
-  margin-top: clamp(6px, 1.6cqmin, 8px);
+  margin-top: clamp(6px, 1.6cqmin, 16px);
   padding: 3px; border-radius: 999px;
   background: rgba(10,7,24,0.5);
   border: 1px solid rgba(232,201,125,0.28);
@@ -128,9 +129,9 @@ body {
   position: relative; z-index: 1;
   flex: 1 1 0; white-space: nowrap;
   font-family: var(--serif); font-weight: 600;
-  font-size: clamp(9px, 2cqmin, 10px); letter-spacing: 0.04em;
+  font-size: clamp(9px, 2cqmin, 20px); letter-spacing: 0.04em;
   color: var(--ink-soft); background: transparent; border: 0;
-  padding: clamp(5px,1.4cqmin,7px) clamp(9px,2.4cqmin,12px);
+  padding: clamp(5px,1.4cqmin,14px) clamp(9px,2.4cqmin,24px);
   border-radius: 999px; cursor: pointer;
   transition: color .3s;
 }
@@ -141,23 +142,23 @@ body {
 .stage.mode-name .zodiac-display,
 .stage.mode-name .zodiac-name,
 .stage.mode-name .zodiac-grid { display: none; }
-.stage.mode-name .panel { justify-content: center; gap: clamp(10px,3cqmin,15px); }
-.stage.mode-name .name-input { font-size: clamp(15px, 3.2cqmin, 17px); }
+.stage.mode-name .panel { justify-content: center; gap: clamp(10px,3cqmin,30px); }
+.stage.mode-name .name-input { font-size: clamp(15px, 3.2cqmin, 34px); }
 
 /* ---------- パネル群 ---------- */
 .panels {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: clamp(5px, 1.4cqmin, 7px);
+  gap: clamp(5px, 1.4cqmin, 14px);
   align-items: stretch;
   min-height: 0;
 }
 .panel {
   position: relative;
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(4px, 1.3cqmin, 7px);
-  padding: clamp(8px, 1.8cqmin, 10px) clamp(6px, 1.4cqmin, 8px);
-  border-radius: 12px;
+  gap: clamp(4px, 1.3cqmin, 14px);
+  padding: clamp(8px, 1.8cqmin, 20px) clamp(6px, 1.4cqmin, 16px);
+  border-radius: clamp(12px, 2.4cqmin, 24px);
   background: var(--panel);
   border: 1px solid var(--panel-line);
   box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 24px rgba(141,107,255,0.08) inset;
@@ -165,15 +166,15 @@ body {
   min-height: 0;
 }
 .panel-label {
-  font-family: var(--serif-old); letter-spacing: 0.14em; font-size: clamp(9px,1.8cqmin,10px);
+  font-family: var(--serif-old); letter-spacing: 0.14em; font-size: clamp(9px,1.8cqmin,20px);
   color: var(--gold);
 }
-.panel-left .panel-label, .panel-right .panel-label { font-size: clamp(9px,1.7cqmin,10px); }
+.panel-left .panel-label, .panel-right .panel-label { font-size: clamp(9px,1.7cqmin,20px); }
 
 /* 選択中の星座原画 */
 .zodiac-display {
-  width: clamp(58px, 17cqmin, 86px);
-  height: clamp(58px, 17cqmin, 86px);
+  width: clamp(58px, 17cqmin, 172px);
+  height: clamp(58px, 17cqmin, 172px);
   display: grid; place-items: center;
   filter: drop-shadow(0 0 14px rgba(185,164,255,0.4));
   transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
@@ -193,17 +194,17 @@ body {
 
 .zodiac-name {
   font-family: var(--serif-old); font-weight: 600;
-  font-size: clamp(11px, 2.7cqmin, 14px); letter-spacing: 0.08em;
+  font-size: clamp(11px, 2.7cqmin, 28px); letter-spacing: 0.08em;
   color: var(--gold-soft); min-height: 1.4em; text-align: center;
 }
 .zodiac-name .roma { display:block; font-family: var(--latin); font-size: 0.6em;
   letter-spacing: 0.24em; color: var(--ink-faint); margin-top: 0.2em; }
 
 .name-input {
-  width: 100%; max-width: 166px;
-  padding: clamp(6px,1.3cqmin,8px) 10px;
+  width: 100%; max-width: min(100%, 332px);
+  padding: clamp(6px,1.3cqmin,16px) clamp(10px, 2cqmin, 20px);
   text-align: center;
-  font-family: var(--hand); font-size: clamp(13px, 2.6cqmin, 15px);
+  font-family: var(--hand); font-size: clamp(13px, 2.6cqmin, 30px);
   color: var(--ink); letter-spacing: 0.04em;
   background: rgba(10,7,24,0.45);
   border: 1px solid rgba(232,201,125,0.3);
@@ -218,12 +219,12 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  gap: clamp(5px, 1.2cqmin, 7px);
+  gap: clamp(5px, 1.2cqmin, 14px);
   width: 100%;
   min-width: 0;
-  height: clamp(58px, 15cqmin, 76px);
+  height: clamp(58px, 15cqmin, 152px);
   margin-top: auto;
-  padding: clamp(6px, 1.2cqmin, 10px) clamp(2px, 0.6cqmin, 6px);
+  padding: clamp(6px, 1.2cqmin, 20px) clamp(2px, 0.6cqmin, 12px);
 }
 .zodiac-grid::before {
   content: "";
@@ -254,8 +255,8 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(48px, 12cqmin, 60px);
-  height: clamp(48px, 12cqmin, 60px);
+  width: clamp(48px, 12cqmin, 120px);
+  height: clamp(48px, 12cqmin, 120px);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   border: 1px solid rgba(232,201,125,0.4);
@@ -266,17 +267,17 @@ body {
 .zodiac-track {
   display: flex;
   align-items: center;
-  gap: clamp(10px, 2.5cqmin, 13px);
+  gap: clamp(10px, 2.5cqmin, 26px);
   height: 100%;
   will-change: transform;
   transition: transform .38s cubic-bezier(.2,.8,.2,1);
 }
 .zodiac-cell {
-  flex: 0 0 clamp(34px, 8.5cqmin, 43px);
-  width: clamp(34px, 8.5cqmin, 43px);
-  height: clamp(34px, 8.5cqmin, 43px);
+  flex: 0 0 clamp(34px, 8.5cqmin, 86px);
+  width: clamp(34px, 8.5cqmin, 86px);
+  height: clamp(34px, 8.5cqmin, 86px);
   display: grid; place-items: center;
-  font-size: clamp(18px, 4.3cqmin, 22px);
+  font-size: clamp(18px, 4.3cqmin, 44px);
   color: var(--ink-soft);
   background: rgba(255,255,255,0.035);
   border: 1px solid rgba(255,255,255,0.08);
@@ -308,15 +309,15 @@ body {
 .zodiac-nav {
   position: relative;
   z-index: 2;
-  flex: 0 0 clamp(30px, 7.4cqmin, 37px);
-  width: clamp(30px, 7.4cqmin, 37px);
-  height: clamp(30px, 7.4cqmin, 37px);
+  flex: 0 0 clamp(30px, 7.4cqmin, 74px);
+  width: clamp(30px, 7.4cqmin, 74px);
+  height: clamp(30px, 7.4cqmin, 74px);
   border-radius: 50%;
   border: 1px solid rgba(232,201,125,0.35);
   background: rgba(10,7,24,0.48);
   color: var(--gold-soft);
   font-family: var(--latin);
-  font-size: clamp(20px, 5cqmin, 25px);
+  font-size: clamp(20px, 5cqmin, 50px);
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 0 16px rgba(141,107,255,0.14) inset, 0 0 14px rgba(232,201,125,0.08);
@@ -330,15 +331,15 @@ body {
 
 /* ---------- 中央：占うボタン ---------- */
 .center-pillar { display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 6px; }
+  justify-content: center; gap: clamp(6px, 1.2cqmin, 12px); }
 .link-thread { width: 1px; flex: 1; min-height: 16px;
   background: linear-gradient(var(--gold), transparent); opacity: 0.5; }
 .center-pillar .link-thread:last-child { background: linear-gradient(transparent, var(--gold)); }
 
 .divine-btn {
   position: relative;
-  width: clamp(58px, 15cqmin, 76px);
-  height: clamp(58px, 15cqmin, 76px);
+  width: clamp(58px, 15cqmin, 152px);
+  height: clamp(58px, 15cqmin, 152px);
   border-radius: 50%;
   border: 1px solid var(--gold);
   background: radial-gradient(circle at 50% 35%, #2c1c52, #160d30);
@@ -358,9 +359,9 @@ body {
   animation: spin 5s linear infinite; opacity: 0.7; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .divine-btn .btn-text { position: relative; font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(12px, 3.1cqmin, 15px); letter-spacing: 0.02em;
+  font-size: clamp(12px, 3.1cqmin, 30px); letter-spacing: 0.02em;
   text-shadow: 0 0 14px rgba(232,201,125,0.6); }
-.divine-btn .btn-sub { position: relative; font-size: clamp(6px,1.5cqmin,8px);
+.divine-btn .btn-sub { position: relative; font-size: clamp(6px,1.5cqmin,16px);
   letter-spacing: 0.04em; color: var(--ink-soft); }
 .divine-btn:hover { transform: scale(1.06); }
 .divine-btn:active { transform: scale(0.97); }
@@ -369,7 +370,7 @@ body {
 
 /* ---------- フッター ---------- */
 .stage-foot { text-align: center; color: var(--ink-faint);
-  font-size: clamp(9px, 1.9cqmin, 10px); letter-spacing: 0.04em; }
+  font-size: clamp(9px, 1.9cqmin, 20px); letter-spacing: 0.04em; }
 
 /* ============================================================
    占いの儀式（障眼法アニメーション）
@@ -388,7 +389,7 @@ body {
 /* 黄道十二宮の輪 */
 .zodiac-wheel {
   position: absolute;
-  width: min(82vmin, 410px); height: min(82vmin, 410px);
+  width: min(82vmin, 820px); height: min(82vmin, 820px);
   opacity: 0; transform: scale(0.7) rotate(-30deg);
   transition: opacity 1.2s ease, transform 1.4s cubic-bezier(.2,.8,.2,1);
 }
@@ -409,11 +410,11 @@ body {
   filter: drop-shadow(0 0 6px rgba(232,201,125,0.6)); }
 
 /* 中央で結ばれるふたつの星座 */
-.orbit-pair { position: absolute; width: min(58vmin,290px); height: min(58vmin,290px);
+.orbit-pair { position: absolute; width: min(58vmin,580px); height: min(58vmin,580px);
   display: grid; place-items: center; }
 .orbit-body {
   position: absolute;
-  width: clamp(62px, 18vmin, 90px); height: clamp(62px, 18vmin, 90px);
+  width: clamp(62px, 18vmin, 180px); height: clamp(62px, 18vmin, 180px);
   opacity: 0; filter: drop-shadow(0 0 18px rgba(185,164,255,0.7));
 }
 .ritual.phase-wheel .orbit-1 { opacity: 1; animation: orbitL 4s ease-in-out infinite; }
@@ -470,11 +471,11 @@ body {
 .result.active { opacity: 1; pointer-events: auto; }
 .result-inner {
   position: relative;
-  width: min(94vw, 94vh, 470px);
-  max-height: min(94vh, 470px);
-  padding: clamp(14px, 3vmin, 20px);
+  width: min(94vw, 94vh, 940px);
+  max-height: min(94vh, 940px);
+  padding: clamp(14px, 3vmin, 40px);
   text-align: center;
-  border-radius: 16px;
+  border-radius: clamp(16px, 3.2vmin, 32px);
   background: rgba(18,12,38,0.92);
   border: 1px solid rgba(232,201,125,0.35);
   box-shadow: 0 0 5px 2px rgba(18,12,38,0.76), 0 0 11px 4px rgba(217,122,166,0.22);
@@ -482,20 +483,20 @@ body {
   transition: transform 0.9s cubic-bezier(.2,.9,.2,1), opacity 0.9s;
 }
 .result.active .result-inner { transform: translateY(0) scale(1); opacity: 1; }
-.result-aura { position: absolute; inset: -2px; border-radius: 16px; pointer-events: none;
+.result-aura { position: absolute; inset: -2px; border-radius: clamp(16px, 3.2vmin, 32px); pointer-events: none;
   background: conic-gradient(from 0deg, transparent, rgba(244,168,200,0.25), transparent 30%, rgba(232,201,125,0.25), transparent 60%);
   animation: spin 8s linear infinite; opacity: 0.5; }
 
 .result-names {
   font-family: var(--serif-old); font-weight: 600;
-  font-size: clamp(13px, 3vmin, 15px); letter-spacing: 0.06em; color: var(--ink);
-  margin-bottom: clamp(6px, 1.4vmin, 8px);
+  font-size: clamp(13px, 3vmin, 30px); letter-spacing: 0.06em; color: var(--ink);
+  margin-bottom: clamp(6px, 1.4vmin, 16px);
 }
 .result-names b { color: var(--gold-soft); font-weight: 700; }
 .result-names .heart { color: var(--rose); margin: 0 0.4em; }
 
-.result-ring { position: relative; width: clamp(126px, 30vmin, 150px);
-  margin: 0 auto clamp(6px,1.4vmin,8px); }
+.result-ring { position: relative; width: clamp(126px, 30vmin, 300px);
+  margin: 0 auto clamp(6px,1.4vmin,16px); }
 .score-ring { width: 100%; height: auto; transform: rotate(-90deg); }
 .ring-track { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 10; }
 .ring-fill { fill: none; stroke: var(--gold); stroke-width: 10;
@@ -503,42 +504,42 @@ body {
   stroke-dasharray: 603; stroke-dashoffset: 603; transition: stroke-dashoffset 2s cubic-bezier(.2,.8,.2,1); }
 .score-center { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; }
 .score-num { font-family: var(--latin); font-weight: 700; line-height: 1;
-  font-size: clamp(34px, 7.8vmin, 42px); color: var(--gold-soft);
+  font-size: clamp(34px, 7.8vmin, 84px); color: var(--gold-soft);
   text-shadow: 0 0 20px rgba(232,201,125,0.6); }
 .score-num i { font-style: normal; font-size: 0.42em; color: var(--ink-soft); margin-left: 2px; }
 .score-label { font-family: var(--serif); letter-spacing: 0.3em; color: var(--ink-soft);
-  font-size: clamp(9px,1.8vmin,10px); margin-top: 0.25em; }
+  font-size: clamp(9px,1.8vmin,20px); margin-top: 0.25em; }
 
 .result-verdict {
   font-family: var(--serif-old); font-weight: 700;
-  font-size: clamp(15px, 3.6vmin, 18px); letter-spacing: 0.08em;
+  font-size: clamp(15px, 3.6vmin, 36px); letter-spacing: 0.08em;
   color: var(--rose); text-shadow: 0 0 18px rgba(244,168,200,0.5);
-  margin-bottom: clamp(5px,1.2vmin,7px);
+  margin-bottom: clamp(5px,1.2vmin,14px);
 }
 .result-message {
   font-family: var(--serif); color: var(--ink-soft); line-height: 1.55;
-  font-size: clamp(10px, 2.2vmin, 12px); letter-spacing: 0.03em;
-  margin-bottom: clamp(8px,1.8vmin,10px);
+  font-size: clamp(10px, 2.2vmin, 24px); letter-spacing: 0.03em;
+  margin-bottom: clamp(8px,1.8vmin,20px);
 }
 .result-aspects {
   display: grid;
   grid-template-columns: minmax(86px, 1fr) minmax(190px, 1.65fr) minmax(86px, 1fr);
   align-items: start;
   justify-items: center;
-  gap: clamp(5px,1.4vmin,8px);
+  gap: clamp(5px,1.4vmin,16px);
   width: 100%;
-  margin-bottom: clamp(8px,1.8vmin,10px);
+  margin-bottom: clamp(8px,1.8vmin,20px);
 }
 .aspect {
   min-width: 0;
   width: 100%;
-  font-size: clamp(9px,1.8vmin,10px);
+  font-size: clamp(9px,1.8vmin,20px);
   color: var(--ink-soft);
   letter-spacing: 0.06em;
   text-align: center;
 }
 .aspect b { display: block; font-family: var(--latin); color: var(--gold-soft);
-  font-size: clamp(11px,2.4vmin,12px); margin-bottom: 1px; }
+  font-size: clamp(11px,2.4vmin,24px); margin-bottom: 1px; }
 .aspect span,
 .aspect .el {
   display: block;
@@ -547,7 +548,7 @@ body {
 }
 .aspect .el { font-family: var(--serif-old); }
 .zodiac-aspects .aspect-center {
-  font-size: clamp(10px,1.38vmin,12px);
+  font-size: clamp(10px,1.38vmin,24px);
   letter-spacing: 0.04em;
 }
 .zodiac-aspects .aspect-center span {
@@ -556,9 +557,9 @@ body {
 
 .again-btn {
   font-family: var(--serif-old); font-weight: 600;
-  font-size: clamp(11px, 2.2vmin, 12px); letter-spacing: 0.08em;
+  font-size: clamp(11px, 2.2vmin, 24px); letter-spacing: 0.08em;
   color: var(--gold-soft); cursor: pointer;
-  padding: clamp(7px,1.5vmin,8px) clamp(18px,3.4vmin,24px);
+  padding: clamp(7px,1.5vmin,16px) clamp(18px,3.4vmin,48px);
   background: rgba(10,7,24,0.5);
   border: 1px solid var(--gold); border-radius: 999px;
   transition: all .3s;
@@ -568,7 +569,7 @@ body {
 
 /* ---------- 縦長端末向けの微調整 ---------- */
 @media (max-aspect-ratio: 3/4) {
-  .stage { width: min(calc(100vw - 8px), 492px); height: auto; aspect-ratio: auto; min-height: min(calc(100vh - 8px), 492px);
+  .stage { width: min(calc(100vw - var(--obs-edge-space)), 984px); height: auto; aspect-ratio: auto; min-height: min(calc(100vh - var(--obs-edge-space)), 984px);
     container-type: normal; }
   .panels {
     grid-template-columns: 1fr;
