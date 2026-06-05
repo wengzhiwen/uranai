@@ -6,18 +6,18 @@
    ============================================================ */
 
 const ZODIAC = [
-  { key: "aries",       jp: "牡羊座",   roma: "Aries",       glyph: "♈", element: "fire",  date: "3/21 - 4/19" },
-  { key: "taurus",      jp: "牡牛座",   roma: "Taurus",      glyph: "♉", element: "earth", date: "4/20 - 5/20" },
-  { key: "gemini",      jp: "双子座",   roma: "Gemini",      glyph: "♊", element: "air",   date: "5/21 - 6/21" },
-  { key: "cancer",      jp: "蟹座",     roma: "Cancer",      glyph: "♋", element: "water", date: "6/22 - 7/22" },
-  { key: "leo",         jp: "獅子座",   roma: "Leo",         glyph: "♌", element: "fire",  date: "7/23 - 8/22" },
-  { key: "virgo",       jp: "乙女座",   roma: "Virgo",       glyph: "♍", element: "earth", date: "8/23 - 9/22" },
-  { key: "libra",       jp: "天秤座",   roma: "Libra",       glyph: "♎", element: "air",   date: "9/23 - 10/23" },
-  { key: "scorpio",     jp: "蠍座",     roma: "Scorpio",     glyph: "♏", element: "water", date: "10/24 - 11/22" },
-  { key: "sagittarius", jp: "射手座",   roma: "Sagittarius", glyph: "♐", element: "fire",  date: "11/23 - 12/21" },
-  { key: "capricorn",   jp: "山羊座",   roma: "Capricorn",   glyph: "♑", element: "earth", date: "12/22 - 1/19" },
-  { key: "aquarius",    jp: "水瓶座",   roma: "Aquarius",    glyph: "♒", element: "air",   date: "1/20 - 2/18" },
-  { key: "pisces",      jp: "魚座",     roma: "Pisces",      glyph: "♓", element: "water", date: "2/19 - 3/20" },
+  { key: "aries",       jp: "牡羊座", "zh-TW": "牡羊座", ko: "양자리",     vi: "Bạch Dương",  roma: "Aries",       glyph: "♈", element: "fire",  date: "3/21 - 4/19" },
+  { key: "taurus",      jp: "牡牛座", "zh-TW": "牡牛座", ko: "황소자리",   vi: "Kim Ngưu",    roma: "Taurus",      glyph: "♉", element: "earth", date: "4/20 - 5/20" },
+  { key: "gemini",      jp: "双子座", "zh-TW": "雙子座", ko: "쌍둥이자리", vi: "Song Tử",     roma: "Gemini",      glyph: "♊", element: "air",   date: "5/21 - 6/21" },
+  { key: "cancer",      jp: "蟹座",   "zh-TW": "巨蟹座", ko: "게자리",     vi: "Cự Giải",     roma: "Cancer",      glyph: "♋", element: "water", date: "6/22 - 7/22" },
+  { key: "leo",         jp: "獅子座", "zh-TW": "獅子座", ko: "사자자리",   vi: "Sư Tử",       roma: "Leo",         glyph: "♌", element: "fire",  date: "7/23 - 8/22" },
+  { key: "virgo",       jp: "乙女座", "zh-TW": "處女座", ko: "처녀자리",   vi: "Xử Nữ",       roma: "Virgo",       glyph: "♍", element: "earth", date: "8/23 - 9/22" },
+  { key: "libra",       jp: "天秤座", "zh-TW": "天秤座", ko: "천칭자리",   vi: "Thiên Bình",  roma: "Libra",       glyph: "♎", element: "air",   date: "9/23 - 10/23" },
+  { key: "scorpio",     jp: "蠍座",   "zh-TW": "天蠍座", ko: "전갈자리",   vi: "Bọ Cạp",      roma: "Scorpio",     glyph: "♏", element: "water", date: "10/24 - 11/22" },
+  { key: "sagittarius", jp: "射手座", "zh-TW": "射手座", ko: "사수자리",   vi: "Nhân Mã",     roma: "Sagittarius", glyph: "♐", element: "fire",  date: "11/23 - 12/21" },
+  { key: "capricorn",   jp: "山羊座", "zh-TW": "摩羯座", ko: "염소자리",   vi: "Ma Kết",      roma: "Capricorn",   glyph: "♑", element: "earth", date: "12/22 - 1/19" },
+  { key: "aquarius",    jp: "水瓶座", "zh-TW": "水瓶座", ko: "물병자리",   vi: "Bảo Bình",    roma: "Aquarius",    glyph: "♒", element: "air",   date: "1/20 - 2/18" },
+  { key: "pisces",      jp: "魚座",   "zh-TW": "雙魚座", ko: "물고기자리", vi: "Song Ngư",    roma: "Pisces",      glyph: "♓", element: "water", date: "2/19 - 3/20" },
 ];
 
 /* 各星座の「星の配置」（0〜100 の相対座標で星を打ち、線でつなぐ）。
@@ -38,10 +38,10 @@ const CONSTELLATIONS = {
 };
 
 const ELEMENT_META = {
-  fire:  { jp: "火",  color: "#ff8a5c", soft: "#ffd2b0" },
-  earth: { jp: "地",  color: "#c4a86a", soft: "#ecdcb0" },
-  air:   { jp: "風",  color: "#9fd0ff", soft: "#d6ecff" },
-  water: { jp: "水",  color: "#a9a4ff", soft: "#ddd9ff" },
+  fire:  { jp: "火", "zh-TW": "火", ko: "불",   vi: "Lửa",  color: "#ff8a5c", soft: "#ffd2b0" },
+  earth: { jp: "地", "zh-TW": "土", ko: "흙",   vi: "Đất",  color: "#c4a86a", soft: "#ecdcb0" },
+  air:   { jp: "風", "zh-TW": "風", ko: "공기", vi: "Khí",  color: "#9fd0ff", soft: "#d6ecff" },
+  water: { jp: "水", "zh-TW": "水", ko: "물",   vi: "Nước", color: "#a9a4ff", soft: "#ddd9ff" },
 };
 
 /* 指定星座の「星座原画」SVG を組み立てる */

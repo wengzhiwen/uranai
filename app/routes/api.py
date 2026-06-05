@@ -118,6 +118,24 @@ def workspace_alias():
     return jsonify({"workspace": ws.to_dict()})
 
 
+@api_bp.put("/workspace/lang")
+def workspace_lang():
+    ws, err = _require_workspace()
+    if err:
+        return err
+    data = request.get_json(force=True)
+    lang = data.get("lang", "ja")
+    if lang not in ("ja", "zh-TW", "ko", "vi"):
+        return jsonify({"error": "unsupported language"}), 400
+    ws.lang = lang
+    db.session.commit()
+
+    from ..socket_events import emit_lang_update
+
+    emit_lang_update(ws.path_token, lang)
+    return jsonify({"ok": True, "lang": lang})
+
+
 @api_bp.post("/workspace/skin")
 def workspace_skin():
     ws, err = _require_workspace()
@@ -150,6 +168,9 @@ def divination_compute():
     name_right = (data.get("name_right") or "").strip()
     zodiac_left = data.get("zodiac_left")
     zodiac_right = data.get("zodiac_right")
+    lang = data.get("lang", "ja")
+    if lang not in ("ja", "zh-TW", "ko", "vi"):
+        lang = "ja"
 
     if not name_left or not name_right:
         return jsonify({"error": "name_left and name_right are required"}), 400
@@ -161,9 +182,9 @@ def divination_compute():
     from ..divination import compute_by_name, compute_compatibility
 
     if mode == "zodiac":
-        outcome = compute_compatibility(name_left, zodiac_left, name_right, zodiac_right)
+        outcome = compute_compatibility(name_left, zodiac_left, name_right, zodiac_right, lang)
     else:
-        outcome = compute_by_name(name_left, name_right)
+        outcome = compute_by_name(name_left, name_right, lang)
 
     return jsonify(outcome)
 
@@ -191,6 +212,8 @@ def divination_launch():
     if mode == "zodiac" and (not zodiac_left or not zodiac_right):
         return jsonify({"error": "zodiac_left and zodiac_right required in zodiac mode"}), 400
 
+    lang = ws.lang or "ja"
+
     # Compute outcome
     if score_override is not None:
         # Score override: use Python port for verdict/message
@@ -203,6 +226,7 @@ def divination_launch():
             name_right=name_right,
             zodiac_left=zodiac_left,
             zodiac_right=zodiac_right,
+            lang=lang,
         )
     else:
         # Normal computation: unified server-side algorithm
@@ -214,6 +238,7 @@ def divination_launch():
             name_right=name_right,
             zodiac_left=zodiac_left,
             zodiac_right=zodiac_right,
+            lang=lang,
         )
 
     # Save record
@@ -284,30 +309,54 @@ def divination_rerun(record_id):
     if not record:
         return jsonify({"error": "record not found"}), 404
 
-    # Push the same outcome again
+    # Rebuild outcome with current language
     from ..socket_events import emit_divination_command
-    from ..divination import find_zodiac
+    from ..divination import find_zodiac, pick_verdict, pick_message, name_resonance_label, _aspect_name, _name_seed_parts
 
     zL_obj = find_zodiac(record.zodiac_left) if record.zodiac_left else None
     zR_obj = find_zodiac(record.zodiac_right) if record.zodiac_right else None
 
-    emit_divination_command(
-        ws.path_token,
-        {
-            "mode": record.mode,
-            "nameL": record.name_left,
-            "nameR": record.name_right,
-            "zL": zL_obj,
-            "zR": zR_obj,
-            "score": record.score,
-            "miracle": record.miracle,
-            "verdict": record.verdict,
-            "message": record.message,
-            "aspect": record.aspect,
-        },
-    )
+    lang = ws.lang or "ja"
+    h = _name_seed_parts(record.name_left, record.name_right)["h"]
 
-    # Create a new record (copy)
+    verdict = pick_verdict(record.score, record.miracle, h, lang)
+    message = pick_message(record.score, record.miracle, h, lang)
+
+    # Determine aspect based on mode
+    if record.mode == "zodiac" and record.zodiac_left and record.zodiac_right:
+        from ..divination import _zodiac_affinity_by_sun, _sun_ecliptic_longitude
+        from datetime import datetime as _dt
+        sun_lon = _sun_ecliptic_longitude(_dt.now())
+        z_aff = _zodiac_affinity_by_sun(record.zodiac_left, record.zodiac_right, sun_lon)
+        aspect = _aspect_name(z_aff["aspect_name"], lang)
+    else:
+        aspect = name_resonance_label(record.score, record.miracle, lang)
+
+    outcome = {
+        "mode": record.mode,
+        "nameL": record.name_left,
+        "nameR": record.name_right,
+        "zL": zL_obj,
+        "zR": zR_obj,
+        "score": record.score,
+        "miracle": record.miracle,
+        "verdict": verdict,
+        "message": message,
+        "aspect": aspect,
+    }
+
+    # Add zodiac-specific fields
+    if record.mode == "zodiac" and zL_obj and zR_obj:
+        from ..divination import _zodiac_affinity_by_sun, _sun_ecliptic_longitude
+        from datetime import datetime as _dt
+        sun_lon = _sun_ecliptic_longitude(_dt.now())
+        z_aff = _zodiac_affinity_by_sun(record.zodiac_left, record.zodiac_right, sun_lon)
+        outcome["affinity"] = z_aff["score"]
+        outcome["sunSign"] = z_aff["sun_sign"]
+
+    emit_divination_command(ws.path_token, outcome)
+
+    # Create a new record (copy with localized text)
     new_record = DivinationRecord(
         workspace_id=ws.id,
         mode=record.mode,
@@ -317,9 +366,9 @@ def divination_rerun(record_id):
         zodiac_right=record.zodiac_right,
         score=record.score,
         miracle=record.miracle,
-        verdict=record.verdict,
-        message=record.message,
-        aspect=record.aspect,
+        verdict=verdict,
+        message=message,
+        aspect=aspect,
         score_overridden=record.score_overridden,
     )
     db.session.add(new_record)

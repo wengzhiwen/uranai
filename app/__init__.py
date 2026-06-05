@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory
 
 from .config import Config, BASE_DIR
 from .extensions import db, socketio
@@ -25,6 +25,16 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        # Migration: add lang column to workspaces if missing
+        import sqlite3
+        db_path = app.config["SQLALCHEMY_DATABASE_URI"].split("///")[-1]
+        if db_path:
+            conn = sqlite3.connect(db_path)
+            cols = [r[1] for r in conn.execute("PRAGMA table_info(workspaces)").fetchall()]
+            if "lang" not in cols:
+                conn.execute("ALTER TABLE workspaces ADD COLUMN lang TEXT DEFAULT 'ja' NOT NULL DEFAULT 'ja'")
+                conn.commit()
+            conn.close()
 
     # Register blueprints
     from .routes.manager import manager_bp

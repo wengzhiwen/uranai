@@ -83,11 +83,11 @@ function buildGrids() {
     const grid = document.getElementById("grid-" + side);
     grid.classList.add("zodiac-picker");
     grid.innerHTML = `
-      <button class="zodiac-nav zodiac-prev" type="button" aria-label="前の星座">‹</button>
-      <div class="zodiac-viewport" role="group" aria-label="星座を左右にスライドして選択" tabindex="0">
+      <button class="zodiac-nav zodiac-prev" type="button" aria-label="${translateUi("ws.zodiac_prev") || "前の星座"}">‹</button>
+      <div class="zodiac-viewport" role="group" aria-label="${translateUi("ws.zodiac_slider") || "星座を左右にスライドして選択"}" tabindex="0">
         <div class="zodiac-track"></div>
       </div>
-      <button class="zodiac-nav zodiac-next" type="button" aria-label="次の星座">›</button>`;
+      <button class="zodiac-nav zodiac-next" type="button" aria-label="${translateUi("ws.zodiac_next") || "次の星座"}">›</button>`;
 
     const track = grid.querySelector(".zodiac-track");
     ZODIAC.forEach((z, i) => {
@@ -216,6 +216,15 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
+function translateUi(key) {
+  return typeof window.__URANAI_T__ === "function" ? window.__URANAI_T__(key) : null;
+}
+
+function formatElementLabel(elementName) {
+  const template = translateUi("ws.element_of");
+  return template ? template.replace("{0}", elementName) : `${elementName}のエレメント`;
+}
+
 /* 選択中の星座原画と名前表示を更新 */
 function updateSide(side) {
   const disp = document.getElementById("zodiac-" + side);
@@ -223,7 +232,7 @@ function updateSide(side) {
   if (!state[side]) {
     disp.classList.add("empty");
     disp.innerHTML = "";
-    nameEl.textContent = "星座を選択してください";
+    nameEl.textContent = translateUi("ws.select_zodiac") || "星座を選択してください";
     return;
   }
   const z = findZodiac(state[side]);
@@ -231,7 +240,7 @@ function updateSide(side) {
   disp.innerHTML = buildConstellationSVG(z);
   disp.classList.remove("pop"); void disp.offsetWidth; disp.classList.add("pop");
   const em = ELEMENT_META[z.element];
-  nameEl.innerHTML = `${z.jp}<span class="roma">${z.roma} ・ ${em.jp}のエレメント</span>`;
+  nameEl.innerHTML = `${z.jp}<span class="roma">${z.roma} ・ ${formatElementLabel(em.jp)}</span>`;
 }
 
 /* ---------- 黄道十二宮の輪を生成 ---------- */
@@ -363,11 +372,11 @@ function runRitualSequence(outcome) {
 
   // wheel×2 を1つに統合し5フェーズへ再設計。各フェーズ比率も見直し。
   const phases = [
-    { at: 0.00, cls: "phase-enter", text: "星々がささやきはじめています…" },
-    { at: 0.12, cls: "phase-wheel", text: "黄道十二宮の導きをたどっています" },
-    { at: 0.42, cls: "phase-bind",  text: "運命の糸を、そっと結び合わせています…" },
-    { at: 0.68, cls: "phase-read",  text: "絆占いが、おふたりの相性を読み解いています…" },
-    { at: 0.88, cls: "phase-read",  text: "まもなく、鑑定結果をお届けします ✦" },
+    { at: 0.00, cls: "phase-enter", text: translateUi("ws.ritual_phase1") || "星々がささやきはじめています…" },
+    { at: 0.12, cls: "phase-wheel", text: translateUi("ws.ritual_phase2") || "黄道十二宮の導きをたどっています" },
+    { at: 0.42, cls: "phase-bind",  text: translateUi("ws.ritual_phase3") || "運命の糸を、そっと結び合わせています…" },
+    { at: 0.68, cls: "phase-read",  text: translateUi("ws.ritual_phase4") || "絆占いが、おふたりの相性を読み解いています…" },
+    { at: 0.88, cls: "phase-read",  text: translateUi("ws.ritual_phase5") || "まもなく、鑑定結果をお届けします ✦" },
   ];
   let phaseIdx = -1;
 

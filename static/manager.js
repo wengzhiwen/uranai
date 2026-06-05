@@ -4,7 +4,6 @@
 
 (function () {
   "use strict";
-  "use strict";
 
   // ── i18n ──────────────────────────────────────────────
   let _lang = localStorage.getItem("mgr_lang") || "ja";
@@ -26,7 +25,8 @@
       const key = el.getAttribute("data-i18n-placeholder");
       if (_translations[key]) el.placeholder = _translations[key];
     });
-    document.documentElement.lang = lang;
+    document.documentElement.lang = lang === "zh-TW" ? "zh-Hant" : lang;
+    renderZodiacOptions();
     // Update active button
     document.querySelectorAll(".lang-btn").forEach((b) => {
       b.classList.toggle("active", b.dataset.lang === lang);
@@ -41,57 +41,72 @@
     {
       id: "royal-violet",
       swatches: ["#2a174c", "#e8c97d"],
-      tone: { ja: "紫 × ゴールド", zh: "紫 × 金" },
-      name: { ja: "紫金ミラージュ", zh: "紫金幻星" },
+      tone: { ja: "紫 × ゴールド", "zh-TW": "紫 × 金", ko: "보랏빛 × 골드", vi: "Tím × Vàng" },
+      name: { ja: "紫金ミラージュ", "zh-TW": "紫金幻星", ko: "자금 미라지", vi: "Ảo ảnh tím vàng" },
     },
     {
       id: "starry-navy",
       swatches: ["#0e2b4b", "#e0ba62"],
-      tone: { ja: "ネイビー × ゴールド", zh: "海军蓝 × 金" },
-      name: { ja: "星降る紺金", zh: "深海金谕" },
+      tone: { ja: "ネイビー × ゴールド", "zh-TW": "海軍藍 × 金", ko: "네이비 × 골드", vi: "Xanh navy × Vàng" },
+      name: { ja: "星降る紺金", "zh-TW": "深海金諭", ko: "별빛 남색 골드", vi: "Sao xanh vàng" },
     },
     {
       id: "emerald-oracle",
       swatches: ["#0b3e27", "#d5b15b"],
-      tone: { ja: "ダークグリーン × ゴールド", zh: "深绿 × 金" },
-      name: { ja: "深森オラクル", zh: "森绿秘签" },
+      tone: { ja: "ダークグリーン × ゴールド", "zh-TW": "深綠 × 金", ko: "다크그린 × 골드", vi: "Xanh lá × Vàng" },
+      name: { ja: "深森オラクル", "zh-TW": "森綠秘籤", ko: "깊은 숲 오라클", vi: "Rừng sâu tiên tri" },
     },
     {
       id: "black-gold",
       swatches: ["#0c0b09", "#d6a94e"],
-      tone: { ja: "ブラック × ゴールド", zh: "黑 × 金" },
-      name: { ja: "黒金グリモワール", zh: "黑金秘卷" },
+      tone: { ja: "ブラック × ゴールド", "zh-TW": "黑 × 金", ko: "블랙 × 골드", vi: "Đen × Vàng" },
+      name: { ja: "黒金グリモワール", "zh-TW": "黑金秘卷", ko: "흑금 마법서", vi: "Sách đen vàng" },
     },
     {
       id: "wine-covenant",
       swatches: ["#5b111d", "#e1bd68"],
-      tone: { ja: "ワインレッド × ゴールド", zh: "酒红 × 金" },
-      name: { ja: "ワインレッドの誓い", zh: "酒红誓约" },
+      tone: { ja: "ワインレッド × ゴールド", "zh-TW": "酒紅 × 金", ko: "와인레드 × 골드", vi: "Đỏ rượu × Vàng" },
+      name: { ja: "ワインレッドの誓い", "zh-TW": "酒紅誓約", ko: "와인레드의 맹세", vi: "Lời thề đỏ rượu" },
     },
     {
       id: "teal-crystal",
       swatches: ["#0b4951", "#dfbd68"],
-      tone: { ja: "ティール × ゴールド", zh: "青绿 × 金" },
-      name: { ja: "ティール水晶", zh: "青晶预言" },
+      tone: { ja: "ティール × ゴールド", "zh-TW": "青綠 × 金", ko: "틸 × 골드", vi: "Teal × Vàng" },
+      name: { ja: "ティール水晶", "zh-TW": "青晶預言", ko: "틸 크리스탈", vi: "Pha lê teal" },
     },
     {
       id: "rose-twinkle",
       swatches: ["#f0448a", "#c48a10"],
-      tone: { ja: "ピンク × ローズゴールド", zh: "粉色 × 玫瑰金" },
-      name: { ja: "ローズ恋きらめき", zh: "桃金恋咒" },
+      tone: { ja: "ピンク × ローズゴールド", "zh-TW": "粉紅 × 玫瑰金", ko: "핑크 × 로즈골드", vi: "Hồng × Vàng hồng" },
+      name: { ja: "ローズ恋きらめき", "zh-TW": "桃金戀咒", ko: "로즈 연애빛", vi: "Hồng tình duyên" },
     },
     {
       id: "silver-mirror",
       swatches: ["#ffffff", "#aeb5bd"],
-      tone: { ja: "ホワイト × シルバー", zh: "白 × 银" },
-      name: { ja: "白銀ムーンミラー", zh: "银白月镜" },
+      tone: { ja: "ホワイト × シルバー", "zh-TW": "白 × 銀", ko: "화이트 × 실버", vi: "Trắng × Bạc" },
+      name: { ja: "白銀ムーンミラー", "zh-TW": "銀白月鏡", ko: "백은 문 미러", vi: "Gương trăng bạc" },
     },
     {
       id: "champagne-crown",
       swatches: ["#ffe28a", "#d59c20"],
-      tone: { ja: "ゴールド × シャンパン", zh: "金 × 香槟金" },
-      name: { ja: "シャンパン金環", zh: "香槟王冠" },
+      tone: { ja: "ゴールド × シャンパン", "zh-TW": "金 × 香檳金", ko: "골드 × 샴페인", vi: "Vàng × Champagne" },
+      name: { ja: "シャンパン金環", "zh-TW": "香檳王冠", ko: "샴페인 왕관", vi: "Vương miện vàng" },
     },
+  ];
+
+  const ZODIAC_OPTIONS = [
+    { value: "aries", glyph: "♈", ja: "牡羊座", "zh-TW": "牡羊座", ko: "양자리", vi: "Bạch Dương" },
+    { value: "taurus", glyph: "♉", ja: "牡牛座", "zh-TW": "牡牛座", ko: "황소자리", vi: "Kim Ngưu" },
+    { value: "gemini", glyph: "♊", ja: "双子座", "zh-TW": "雙子座", ko: "쌍둥이자리", vi: "Song Tử" },
+    { value: "cancer", glyph: "♋", ja: "蟹座", "zh-TW": "巨蟹座", ko: "게자리", vi: "Cự Giải" },
+    { value: "leo", glyph: "♌", ja: "獅子座", "zh-TW": "獅子座", ko: "사자자리", vi: "Sư Tử" },
+    { value: "virgo", glyph: "♍", ja: "乙女座", "zh-TW": "處女座", ko: "처녀자리", vi: "Xử Nữ" },
+    { value: "libra", glyph: "♎", ja: "天秤座", "zh-TW": "天秤座", ko: "천칭자리", vi: "Thiên Bình" },
+    { value: "scorpio", glyph: "♏", ja: "蠍座", "zh-TW": "天蠍座", ko: "전갈자리", vi: "Bọ Cạp" },
+    { value: "sagittarius", glyph: "♐", ja: "射手座", "zh-TW": "射手座", ko: "사수자리", vi: "Nhân Mã" },
+    { value: "capricorn", glyph: "♑", ja: "山羊座", "zh-TW": "摩羯座", ko: "염소자리", vi: "Ma Kết" },
+    { value: "aquarius", glyph: "♒", ja: "水瓶座", "zh-TW": "水瓶座", ko: "물병자리", vi: "Bảo Bình" },
+    { value: "pisces", glyph: "♓", ja: "魚座", "zh-TW": "雙魚座", ko: "물고기자리", vi: "Song Ngư" },
   ];
 
   // ── state ─────────────────────────────────────────────
@@ -105,6 +120,22 @@
 
   // ── DOM refs ──────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
+
+  function renderZodiacOptions() {
+    ["launch-zodiac-left", "launch-zodiac-right"].forEach((id) => {
+      const select = $(id);
+      if (!select) return;
+      const selected = select.value;
+      select.innerHTML = "";
+      ZODIAC_OPTIONS.forEach((z) => {
+        const option = document.createElement("option");
+        option.value = z.value;
+        option.textContent = `${z.glyph} ${z[_lang] || z.ja}`;
+        select.appendChild(option);
+      });
+      select.value = selected || "aries";
+    });
+  }
 
   // ── init ──────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", async () => {
@@ -138,6 +169,8 @@
         if (_workspace) {
           renderSkinOptions();
           refreshRecords();
+          // Sync language to workspace divination page
+          await api("PUT", "/api/workspace/lang", { lang: _lang });
         }
       });
       btn.classList.toggle("active", btn.dataset.lang === _lang);
@@ -224,6 +257,8 @@
     setupSocket();
     bindDashboard();
     refreshRecords();
+    // Sync language to workspace divination page
+    api("PUT", "/api/workspace/lang", { lang: _lang });
   }
 
   function buildDivinationUrl(pathToken) {

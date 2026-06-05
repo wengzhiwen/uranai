@@ -10,6 +10,7 @@ class Workspace(db.Model):
     access_code = db.Column(db.Text, unique=True, nullable=False, index=True)
     path_token = db.Column(db.Text, unique=True, nullable=False, index=True)
     alias = db.Column(db.Text, default="", nullable=False)
+    lang = db.Column(db.Text, default="ja", nullable=False)
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
@@ -24,6 +25,7 @@ class Workspace(db.Model):
             "access_code": self.access_code,
             "path_token": self.path_token,
             "alias": self.alias,
+            "lang": self.lang or "ja",
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 

@@ -24,6 +24,14 @@ def ws_join(data):
     ws = Workspace.query.filter_by(path_token=path_token).first()
     if ws:
         socketio.emit("page_connected", {}, room=f"mgr_{ws.id}", namespace="/mgr")
+        # Send current language to newly connected page
+        if ws.lang and ws.lang != "ja":
+            socketio.emit(
+                "lang_update",
+                {"lang": ws.lang},
+                room=room,
+                namespace="/ws",
+            )
     if path_token in _ws_skins:
         socketio.emit(
             "skin_update",
@@ -94,3 +102,8 @@ def emit_skin_update(path_token: str, skin: str):
     """Push a visual skin update to the workspace's divination page."""
     _ws_skins[path_token] = skin
     socketio.emit("skin_update", {"skin": skin}, room=f"ws_{path_token}", namespace="/ws")
+
+
+def emit_lang_update(path_token: str, lang: str):
+    """Push a language update to the workspace's divination page."""
+    socketio.emit("lang_update", {"lang": lang}, room=f"ws_{path_token}", namespace="/ws")
